@@ -5,7 +5,6 @@ file tree / import graph follows ADR-0001 (the import contract). Empty
 initially — fill in when ADR-0001 is written.
 """
 
-import ast
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent
@@ -23,6 +22,6 @@ class TestSrcLayoutPresent:
         assert src.exists() and src.is_dir(), f"src/ missing at {src}"
         init_files = list(src.glob("*/__init__.py"))
         assert init_files, (
-            f"No package __init__.py found under src/ — "
-            f"create at least one src/<package>/__init__.py."
+            "No package __init__.py found under src/ — "
+            "create at least one src/<package>/__init__.py."
         )
