@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=72", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "<<PROJECT_NAME>>"
+version = "0.1.0"
+description = "<<DESCRIPTION>>"
+authors = [{ name = "<<AUTHOR_NAME>>", email = "<<AUTHOR_EMAIL>>" }]
+readme = "README.md"
+license = "<<LICENSE_ID>>"
+requires-python = ">=<<PYTHON_FLOOR>>"
+
+[project.urls]
+Homepage = "https://github.com/<<AUTHOR_NAME>>/<<PROJECT_NAME>>"
+Repository = "https://github.com/<<AUTHOR_NAME>>/<<PROJECT_NAME>>"
+Issues = "https://github.com/<<AUTHOR_NAME>>/<<PROJECT_NAME>>/issues"
+Changelog = "https://github.com/<<AUTHOR_NAME>>/<<PROJECT_NAME>>/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = [".venv", "__pycache__", "docs", "dist", "build"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.pyright]
+typeCheckingMode = "basic"
+pythonVersion = "<<PYTHON_FLOOR>>"
+include = ["src", "tests"]
+exclude = [".venv", "**/__pycache__", "docs", "dist", "build"]
+
+[tool.coverage.run]
+omit = [".venv/*", "docs/*", "tests/*", "conftest.py"]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "placeholders": {
+    "<<PROJECT_NAME>>":   {"required": true,  "validate": "^[a-z][a-z0-9-]*[a-z0-9]$",   "description": "kebab-case repo name"},
+    "<<PROJECT_TITLE>>":  {"required": true,  "validate": null,                            "description": "Title Case display name"},
+    "<<PACKAGE_NAME>>":   {"required": true,  "validate": "^[a-z][a-z0-9_]*[a-z0-9]$",   "description": "snake_case Python package"},
+    "<<DESCRIPTION>>":    {"required": true,  "validate": null,                            "description": "one-line description"},
+    "<<AUTHOR_NAME>>":    {"required": true,  "validate": null,                            "description": "git config user.name"},
+    "<<AUTHOR_EMAIL>>":   {"required": true,  "validate": "^[^@]+@[^@]+\\.[^@]+$",         "description": "git config user.email"},
+    "<<YEAR>>":           {"required": true,  "validate": "^[0-9]{4}$",                    "description": "current year"},
+    "<<LICENSE_ID>>":     {"required": true,  "validate": "^(MIT|Apache-2.0|BSD-3-Clause|Unlicense)$", "description": "SPDX license identifier"},
+    "<<PYTHON_FLOOR>>":   {"required": true,  "validate": "^3\\.(11|12|13|14)$",            "description": "minimum Python version"}
+  },
+  "directory_renames": [
+    {"from": "src/<<PACKAGE_NAME>>", "placeholder": "<<PACKAGE_NAME>>"}
+  ],
+  "license_override": {
+    "description": "If LICENSE_ID != MIT, replace template/LICENSE with the appropriate SPDX text",
+    "templates": {
+      "MIT": "use template/LICENSE as-is",
+      "Apache-2.0": "fetch from SPDX",
+      "BSD-3-Clause": "fetch from SPDX",
+      "Unlicense": "fetch from SPDX"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Lint — ruff
+        run: ruff check .
+
+      - name: Type-check — pyright
+        run: pyright .
+
+      - name: Test
+        run: pytest -q
+
+      - name: Test (deprecation warnings as errors)
+        run: pytest -W error::DeprecationWarning -q
+
+      - name: Coverage gate (3.14 only)
+        if: matrix.python-version == '3.14'
+        run: |
+          pytest --cov=src --cov-report=term-missing -q
+          coverage report --fail-under=95
