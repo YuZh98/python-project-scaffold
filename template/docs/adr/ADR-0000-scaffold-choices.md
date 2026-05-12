@@ -140,7 +140,7 @@ Removed, Deprecated, Security. No free-form entries.
 | D1 — src/ layout | `tests/test_scaffold.py` (smoke test verifies directory shape); editable-install step in `pyproject.toml` |
 | D2 — pinning tests | GUIDELINES §8 convention + `tests/test_rules.py` itself (rules cannot land without a test) |
 | D3 — Conventional Commits | pre-commit hook (`conventional-pre-commit` or equivalent); CI branch-name lint |
-| D4 — Keep-a-Changelog | GUIDELINES §10 + code-review checklist in `PULL_REQUEST_TEMPLATE.md` |
+| D4 — Keep-a-Changelog | GUIDELINES §10 (every PR appends one line under `[Unreleased]` in `CHANGELOG.md`) |
 
 ---
 
