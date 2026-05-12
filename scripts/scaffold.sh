@@ -143,8 +143,7 @@ echo "  Dependencies installed."
 # ---------------------------------------------------------------------------
 echo "✓ [8/11] Installing pre-commit hooks…"
 
-"${TARGET}/.venv/bin/pre-commit" install --config "${TARGET}/.pre-commit-config.yaml" \
-  --git-dir "${TARGET}/.git" --work-tree "${TARGET}"
+( cd "${TARGET}" && "./.venv/bin/pre-commit" install )
 echo "  pre-commit hooks installed."
 
 # ---------------------------------------------------------------------------
