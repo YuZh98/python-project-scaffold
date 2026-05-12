@@ -21,7 +21,7 @@ Changelog = "https://github.com/<<AUTHOR_NAME>>/<<PROJECT_NAME>>/blob/main/CHANG
 where = ["src"]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "<<RUFF_TARGET>>"
 line-length = 100
 extend-exclude = [".venv", "__pycache__", "docs", "dist", "build"]
 
