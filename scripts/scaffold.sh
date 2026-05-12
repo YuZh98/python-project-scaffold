@@ -100,6 +100,20 @@ git -C "${TARGET}" init --initial-branch=main
 echo "  git init complete."
 
 # ---------------------------------------------------------------------------
+# Step 5.5 — Assert python3 meets the floor
+# ---------------------------------------------------------------------------
+FLOOR="${PYTHON_FLOOR:-3.11}"
+python3 - "$FLOOR" <<'PY'
+import sys
+floor = sys.argv[1]
+major, minor = (int(x) for x in floor.split("."))
+if sys.version_info < (major, minor):
+    print(f"[scaffold] ERROR: python3 is {sys.version.split()[0]}, need >={floor}", file=sys.stderr)
+    sys.exit(1)
+print(f"[scaffold] ✓ python3 {sys.version.split()[0]} meets floor {floor}")
+PY
+
+# ---------------------------------------------------------------------------
 # Step 6 — Create venv
 # ---------------------------------------------------------------------------
 echo "✓ [6/11] Creating Python virtual environment…"
@@ -129,13 +143,8 @@ echo "  Dependencies installed."
 # ---------------------------------------------------------------------------
 echo "✓ [8/11] Installing pre-commit hooks…"
 
-if "${TARGET}/.venv/bin/python" -c "import pre_commit" &>/dev/null 2>&1; then
-  "${TARGET}/.venv/bin/pre-commit" install --config "${TARGET}/.pre-commit-config.yaml" \
-    --git-dir "${TARGET}/.git" --work-tree "${TARGET}"
-  echo "  pre-commit hooks installed."
-else
-  echo "  Note: pre-commit not installed in venv — skipping hook installation."
-fi
+( cd "${TARGET}" && "./.venv/bin/pre-commit" install )
+echo "  pre-commit hooks installed."
 
 # ---------------------------------------------------------------------------
 # Step 9 — Run tests

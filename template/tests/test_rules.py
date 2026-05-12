@@ -3,6 +3,11 @@
 Each rule is asserted via static analysis (AST inspection) of production code.
 A failing test means a rule was violated — fix the rule violation, do not loosen
 the test, unless GUIDELINES is updated first.
+
+When a new rule is codified before the codebase is fully compliant, mark the
+test ``@pytest.mark.xfail(strict=False, reason="...; closes #N")`` and link the
+follow-on PR that will close the gap. Aspirational rules without a bridge are
+policy fiction (see CLAUDE.md universal rule: "no rule lands without its enforcement").
 """
 
 import ast
@@ -235,6 +240,9 @@ class TestImportContract:
 
     Ship with an empty list so this test always passes on a fresh scaffold.
     Add entries when ADR-0001 is written.
+
+    Empty default — fill in when ADR-0001 names the import-contract layers.
+    Until then this test passes vacuously by design (see module docstring).
 
     Example (do not uncomment until ADR-0001 is written):
         _FORBIDDEN_PAIRS = [
