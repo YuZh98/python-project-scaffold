@@ -31,12 +31,25 @@ class TestScaffoldEndToEnd:
         values_file = tmp_path / "values.json"
         values_file.write_text(json.dumps(self.SAMPLE_VALUES))
 
+        # Ensure git commit step has an identity even on CI runners that
+        # have no global git config. Real users set this via
+        # `git config --global`; here we inject via env vars so the test
+        # is hermetic and doesn't mutate the runner's global state.
+        env = dict(os.environ)
+        env.update({
+            "GIT_AUTHOR_NAME":     self.SAMPLE_VALUES["<<AUTHOR_NAME>>"],
+            "GIT_AUTHOR_EMAIL":    self.SAMPLE_VALUES["<<AUTHOR_EMAIL>>"],
+            "GIT_COMMITTER_NAME":  self.SAMPLE_VALUES["<<AUTHOR_NAME>>"],
+            "GIT_COMMITTER_EMAIL": self.SAMPLE_VALUES["<<AUTHOR_EMAIL>>"],
+        })
+
         # Run the scaffold script
         result = subprocess.run(
             ["bash", str(SCAFFOLD_SCRIPT), str(target), str(values_file)],
             capture_output=True,
             text=True,
             cwd=tmp_path,
+            env=env,
         )
 
         # Detailed diagnostic on failure
