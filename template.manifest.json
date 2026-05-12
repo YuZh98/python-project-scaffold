@@ -2,14 +2,15 @@
   "version": 1,
   "placeholders": {
     "<<PROJECT_NAME>>":   {"required": true,  "validate": "^[a-z][a-z0-9-]*[a-z0-9]$",   "description": "kebab-case repo name"},
-    "<<PROJECT_TITLE>>":  {"required": true,  "validate": null,                            "description": "Title Case display name"},
+    "<<PROJECT_TITLE>>":  {"required": true,  "validate": "^[^\"\\\\\\n]+$",              "description": "Title Case display name (no \" or backslash — substituted into TOML)"},
     "<<PACKAGE_NAME>>":   {"required": true,  "validate": "^[a-z][a-z0-9_]*[a-z0-9]$",   "description": "snake_case Python package"},
-    "<<DESCRIPTION>>":    {"required": true,  "validate": null,                            "description": "one-line description"},
-    "<<AUTHOR_NAME>>":    {"required": true,  "validate": null,                            "description": "git config user.name"},
+    "<<DESCRIPTION>>":    {"required": true,  "validate": "^[^\"\\\\\\n]+$",              "description": "one-line description (no \" or backslash — substituted into TOML)"},
+    "<<AUTHOR_NAME>>":    {"required": true,  "validate": "^[^\"\\\\\\n]+$",              "description": "git config user.name (no \" or backslash — substituted into TOML)"},
     "<<AUTHOR_EMAIL>>":   {"required": true,  "validate": "^[^@]+@[^@]+\\.[^@]+$",         "description": "git config user.email"},
     "<<YEAR>>":           {"required": true,  "validate": "^[0-9]{4}$",                    "description": "current year"},
     "<<LICENSE_ID>>":     {"required": true,  "validate": "^(MIT|Apache-2.0|BSD-3-Clause|Unlicense)$", "description": "SPDX license identifier"},
-    "<<PYTHON_FLOOR>>":   {"required": true,  "validate": "^3\\.(11|12|13|14)$",            "description": "minimum Python version"}
+    "<<PYTHON_FLOOR>>":   {"required": true,  "validate": "^3\\.(11|12|13|14)$",            "description": "minimum Python version"},
+    "<<RUFF_TARGET>>":    {"required": false, "validate": "^py(311|312|313|314)$",           "description": "auto-derived from PYTHON_FLOOR (e.g. 3.11 -> py311)"}
   },
   "directory_renames": [
     {"from": "src/<<PACKAGE_NAME>>", "placeholder": "<<PACKAGE_NAME>>"}

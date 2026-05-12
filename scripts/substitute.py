@@ -377,6 +377,14 @@ def main() -> None:
     print(f"Loading values from {values_path}")
     values = load_values(values_path)
 
+    # Auto-derive <<RUFF_TARGET>> from <<PYTHON_FLOOR>> if not supplied.
+    # Example: "3.11" -> "py311", "3.12" -> "py312".
+    if "<<RUFF_TARGET>>" not in values and "<<PYTHON_FLOOR>>" in values:
+        floor = values["<<PYTHON_FLOOR>>"]
+        major, minor = floor.split(".")
+        values["<<RUFF_TARGET>>"] = f"py{major}{minor}"
+        print(f"  Auto-derived <<RUFF_TARGET>> = {values['<<RUFF_TARGET>>']!r} from <<PYTHON_FLOOR>>={floor!r}")
+
     print("Validating values…")
     validate_values(manifest, values)
 

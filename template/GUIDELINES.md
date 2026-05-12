@@ -26,6 +26,8 @@ _Read at the start of every coding session. Scannable checklist, not a tutorial.
 
 ## 8. Testing Conventions
 - `tests/test_<module>.py`; class-level constants for copy/keys; pinning tests in `tests/test_rules.py`.
+  - **No rule lands without its enforcement.** Every convention added to GUIDELINES.md needs a pinning test (or `xfail` bridge with a tracked follow-on PR) before the rule-authoring PR merges. Aspirational prose-only rules drift faster than they get enforced.
+  - **Capture-pin-comment workflow** for newly discovered library/framework gotchas: (1) reproduce in isolation, (2) write up in `docs/dev-notes/<gotcha>.md` with Symptom/Cause/Workaround, (3) add a one-line comment at the source workaround site referencing the dev-note, (4) add a pinning test that locks in the fix.
 
 ## 9. Git Workflow
 - Conventional Commits. `<type>/<short-description>` branches. Pre-commit + CI gates green.
