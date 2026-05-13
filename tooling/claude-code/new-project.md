@@ -89,7 +89,7 @@ If user types anything except `y`/`Y`/`yes`/Enter, abort cleanly without writing
 
 ```bash
 SCAFFOLD_TMP=$(mktemp -d)
-SCAFFOLD_VERSION="v1.5.0"
+SCAFFOLD_VERSION="v1.6.0"
 git clone --depth 1 --branch "$SCAFFOLD_VERSION" \
   https://github.com/YuZh98/python-project-scaffold.git "$SCAFFOLD_TMP"
 ```
@@ -187,6 +187,6 @@ If the user invokes the skill with the equivalent of `--dry-run` (e.g. "/new-pro
 
 ## Updates and drift
 
-- This skill pins to scaffold release tag `v1.5.0` via `SCAFFOLD_VERSION`. To adopt a new scaffold release, bump the tag in Step 4 and review the scaffold's `CHANGELOG.md` between versions.
+- This skill pins to scaffold release tag `v1.6.0` via `SCAFFOLD_VERSION`. To adopt a new scaffold release, bump the tag in Step 4 and review the scaffold's `CHANGELOG.md` between versions.
 - The scaffold's interactive prompts and validators are the source of truth — the skill must not re-implement them. If `init-project.py` changes its prompt set, this skill's Step 5 description should be updated to match (but no behavioral change needed in the skill itself).
 - Compatibility contract: this skill expects `init-project.py --target` to be a stable interface. Breaking changes to that interface trigger a scaffold-major-version bump and require a skill update.

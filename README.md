@@ -95,5 +95,4 @@ MIT — see [LICENSE](LICENSE).
 - [`scripts/substitute.py`](scripts/substitute.py) — substitution engine
 - [`tests/test_init_project.py`](tests/test_init_project.py) — smoke test for the bootstrap flow
 - [`tests/test_scaffold.py`](tests/test_scaffold.py) — smoke test for the target-dir flow
-- [`tests/test_skill_flow.py`](tests/test_skill_flow.py) — SKILL.md ↔ manifest drift guard
 - [`tooling/`](tooling/) — opt-in editor / AI-assistant integrations (e.g. Claude Code skill)
