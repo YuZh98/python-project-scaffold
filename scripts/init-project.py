@@ -54,6 +54,7 @@ SCAFFOLD_ONLY_FILES: list[str] = [
 # Scaffold-only directories to remove (after files cleared).
 SCAFFOLD_ONLY_DIRS: list[str] = [
     "examples",  # if it exists at scaffold-repo level (added in same PR)
+    "tooling",  # opt-in editor / AI integrations layer; not for derived projects
     "template",  # always last — entire template/ subdir after move
     "scripts",  # cleared after self-delete
 ]
