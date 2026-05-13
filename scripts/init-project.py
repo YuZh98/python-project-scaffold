@@ -102,7 +102,14 @@ def _prompt(text: str, default: str | None = None, validator=None) -> str:
     """
     while True:
         suffix = f" [{default}]" if default is not None else ""
-        raw = input(f"  {text}{suffix}: ").strip()
+        try:
+            raw = input(f"  {text}{suffix}: ").strip()
+        except EOFError:
+            _abort(
+                "Interactive mode requires a TTY for stdin. "
+                "Use --values <path.json> for non-interactive bootstrap.",
+                4,
+            )
         if not raw and default is not None:
             raw = default
         if not raw:
@@ -141,9 +148,7 @@ def _validate_python_floor(value: str) -> str:
     import re
 
     if not re.fullmatch(r"3\.(1[1-9]|[2-9][0-9])", value):
-        raise ValueError(
-            f"Python floor must be 3.11 or later (e.g. 3.11, 3.12). Got: '{value}'"
-        )
+        raise ValueError(f"Python floor must be 3.11 or later (e.g. 3.11, 3.12). Got: '{value}'")
     return value
 
 
@@ -158,9 +163,7 @@ def _collect_interactive() -> dict[str, str]:
     print("\nProject details — press Enter to accept defaults in [brackets].\n")
     name = _prompt("Project name (kebab-case)", validator=_validate_project_name)
     description = _prompt("One-line description", validator=_validate_description)
-    python_floor = _prompt(
-        "Python floor (3.11+)", default="3.11", validator=_validate_python_floor
-    )
+    python_floor = _prompt("Python floor (3.11+)", default="3.11", validator=_validate_python_floor)
 
     print("\n  License options:")
     for k, hint in LICENSE_HINTS.items():
@@ -177,9 +180,7 @@ def _collect_interactive() -> dict[str, str]:
 
 def _git_config(key: str) -> str | None:
     try:
-        out = subprocess.check_output(
-            ["git", "config", "--get", key], stderr=subprocess.DEVNULL
-        )
+        out = subprocess.check_output(["git", "config", "--get", key], stderr=subprocess.DEVNULL)
         return out.decode().strip() or None
     except subprocess.CalledProcessError:
         return None
@@ -199,28 +200,31 @@ def _derive_silent(values: dict[str, str]) -> dict[str, str]:
     """Add silent defaults for placeholders not collected interactively."""
     name = values["<<PROJECT_NAME>>"]
     values.setdefault("<<PACKAGE_NAME>>", name.replace("-", "_"))
-    values.setdefault(
-        "<<PROJECT_TITLE>>", " ".join(w.capitalize() for w in name.split("-"))
-    )
+    values.setdefault("<<PROJECT_TITLE>>", " ".join(w.capitalize() for w in name.split("-")))
     values.setdefault("<<YEAR>>", str(date.today().year))
     if "<<AUTHOR_NAME>>" not in values:
         author = _git_config("user.name")
         if not author:
             author = _prompt("Author name (from git config; required)")
         values["<<AUTHOR_NAME>>"] = author
+        print(
+            f"  ℹ <<AUTHOR_NAME>> not supplied — resolved as {author!r} (from git config / prompt)"
+        )
     if "<<AUTHOR_EMAIL>>" not in values:
         email = _git_config("user.email")
         if not email:
             email = _prompt("Author email (from git config; required)")
         values["<<AUTHOR_EMAIL>>"] = email
+        print(
+            f"  ℹ <<AUTHOR_EMAIL>> not supplied — resolved as {email!r} (from git config / prompt)"
+        )
     if "<<GITHUB_USERNAME>>" not in values:
         gh = _gh_login()
         if not gh:
-            print(
-                "    ℹ `gh` not configured. You'll need a GitHub login for project URLs."
-            )
+            print("    ℹ `gh` not configured. You'll need a GitHub login for project URLs.")
             gh = _prompt("GitHub username")
         values["<<GITHUB_USERNAME>>"] = gh
+        print(f"  ℹ <<GITHUB_USERNAME>> not supplied — resolved as {gh!r} (from gh api / prompt)")
     return values
 
 
@@ -481,10 +485,7 @@ def _mode_in_place(args: argparse.Namespace) -> None:
         _install(args.dry_run)
 
     print("\n" + "─" * 60)
-    print(
-        "✓ Bootstrap complete."
-        + ("  [DRY-RUN — no changes written]" if args.dry_run else "")
-    )
+    print("✓ Bootstrap complete." + ("  [DRY-RUN — no changes written]" if args.dry_run else ""))
     print(f"  Project: {values['<<PROJECT_NAME>>']}")
     print("  Next:    make test")
     print("─" * 60 + "\n")
@@ -512,9 +513,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--target", help="Target directory (instead of in-place)")
     parser.add_argument("--values", help="Non-interactive values.json path")
-    parser.add_argument(
-        "--dry-run", action="store_true", help="Print phases, no writes"
-    )
+    parser.add_argument("--dry-run", action="store_true", help="Print phases, no writes")
     parser.add_argument("--keep-history", action="store_true", help="Don't reset .git/")
     parser.add_argument(
         "--reset-history",
@@ -522,9 +521,7 @@ def main() -> None:
         help="Explicit reset (default in interactive in-place mode)",
     )
     parser.add_argument("--no-install", action="store_true", help="Skip `make install`")
-    parser.add_argument(
-        "--yes", "-y", action="store_true", help="Skip confirmation prompt"
-    )
+    parser.add_argument("--yes", "-y", action="store_true", help="Skip confirmation prompt")
     args = parser.parse_args()
 
     # Non-interactive default: keep history if not explicitly reset.

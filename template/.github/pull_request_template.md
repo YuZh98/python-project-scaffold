@@ -8,6 +8,7 @@
 - [ ] `make lint && make typecheck` passes
 - [ ] New behavior is covered by tests
 - [ ] `CHANGELOG.md` updated under `[Unreleased]`
+- [ ] Architectural decisions documented (new ADR in `docs/adr/` if hard-to-reverse; updated existing ADR if changing prior decision)
 
 ## Checklist
 

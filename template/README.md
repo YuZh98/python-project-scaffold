@@ -4,14 +4,14 @@
 
 ## Status
 
-Early development. Scaffolded from [python-project-scaffold](https://github.com/<<AUTHOR_NAME>>/python-project-scaffold).
+Early development. Scaffolded from [python-project-scaffold](https://github.com/<<GITHUB_USERNAME>>/python-project-scaffold).
 
 > **New to these concepts?** See [`docs/concepts.md`](docs/concepts.md) for a glossary of every scaffold-shipped term (venv, src layout, pinning tests, ADRs, etc.). For the architecture of how these concepts compose, see [`docs/enforcement-model.md`](docs/enforcement-model.md).
 
 ## Quick start
 
 ```bash
-git clone https://github.com/<<AUTHOR_NAME>>/<<PROJECT_NAME>>.git
+git clone https://github.com/<<GITHUB_USERNAME>>/<<PROJECT_NAME>>.git
 cd <<PROJECT_NAME>>
 make install
 make test
