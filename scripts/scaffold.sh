@@ -141,7 +141,8 @@ echo "  Wrote .scaffold-version (manifest_version=${MANIFEST_VERSION})"
 # ---------------------------------------------------------------------------
 # Step 5.5b — Assert python3 meets the floor
 # ---------------------------------------------------------------------------
-FLOOR="${PYTHON_FLOOR:-3.11}"
+PYTHON_FLOOR=$(python3 -c "import json; print(json.load(open('${VALUES}'))['<<PYTHON_FLOOR>>'])")
+FLOOR="${PYTHON_FLOOR}"
 python3 - "$FLOOR" <<'PY'
 import sys
 floor = sys.argv[1]
@@ -213,6 +214,13 @@ echo "  All tests passed."
 echo "✓ [10/11] Creating initial commit…"
 
 git -C "${TARGET}" add .
+# H1 fix — forward author identity to git so commit works without global git config.
+AUTHOR_NAME=$(python3 -c "import json,sys; print(json.load(open('${VALUES}'))['<<AUTHOR_NAME>>'])")
+AUTHOR_EMAIL=$(python3 -c "import json,sys; print(json.load(open('${VALUES}'))['<<AUTHOR_EMAIL>>'])")
+export GIT_AUTHOR_NAME="${AUTHOR_NAME}"
+export GIT_AUTHOR_EMAIL="${AUTHOR_EMAIL}"
+export GIT_COMMITTER_NAME="${AUTHOR_NAME}"
+export GIT_COMMITTER_EMAIL="${AUTHOR_EMAIL}"
 git -C "${TARGET}" commit -m "feat: initial scaffold from python-project-scaffold (manifest v${MANIFEST_VERSION})"
 echo "  Initial commit created."
 

@@ -15,12 +15,6 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
   - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
 -->
 
-### Added
-
-### Changed
-
-### Fixed
-
 ## [v1.6.0] - 2026-05-12
 
 ### Added
@@ -35,7 +29,7 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
 ### Removed
 - `tests/test_skill_flow.py` — obsolete drift guard. The skill was rewritten in v1.4.0 to delegate to `init-project.py` rather than duplicate its placeholder list; the `keys = [...]` block the test parsed no longer exists in SKILL.md. No drift surface remains for this test to guard.
 
-## Migrating from v1.5.0
+### Migration
 
 Existing skill users (i.e. those who installed `~/.claude/skills/new-project/SKILL.md` from a prior scaffold release): the v1.6.0 release ships the same SKILL.md content as v1.5.0 with two stale-prose fixes (frontmatter "4 questions" → "3 questions"; tail comment "v1.4.0" → "v1.5.0"). To pick up the fixes and the v1.6.0 scaffold pin:
 
@@ -47,6 +41,49 @@ cp /tmp/scaffold/tooling/claude-code/new-project.md ~/.claude/skills/new-project
 ```
 
 No breaking changes to the scaffold engine, template tree, or `init-project.py` interface in this release.
+
+## [v1.5.0] - 2026-05-12
+
+### Added
+- `template/docs/setup-branch-protection.md`: 57-line how-to covering both `gh` CLI and GitHub UI paths, verification command, and three gotchas; cross-links to `template/docs/enforcement-model.md`. (#7)
+- `template/tests/test_rules.py::TestNoStringConcatenatedSQL`: AST scan of `src/**/*.py` for `execute()`/`executemany()` calls whose SQL argument is built via f-string or `+` concatenation; vacuous-pass when no DB library is imported. Promotes GUIDELINES §5 "parameterised SQL only" from prose to Tier 1. (#7)
+
+### Changed
+- `template/.pre-commit-config.yaml`: add `default_install_hook_types: [pre-commit, commit-msg]` and `conventional-pre-commit` v3.6.0 hook on the `commit-msg` stage. Conventional Commits + ≤72 char subject now enforced mechanically (promoted from Tier 3 prose to Tier 2 pre-commit). (#7)
+- `template/.github/pull_request_template.md`: add ADR-required checklist row prompting documentation for hard-to-reverse architectural decisions. (#7)
+- `template/tests/test_cohesion.py`: add `TestChangelogFormat` asserting exactly one `## [Unreleased]` heading and that all `###` subsection headings are one of the six legal Keep-a-Changelog tokens. Promotes GUIDELINES §10 from prose to Tier 1. (#7)
+
+### Fixed
+- `template/README.md`: replace `<<AUTHOR_NAME>>` with `<<GITHUB_USERNAME>>` in both GitHub URL contexts — previous URLs included spaces from the user's display name, producing 404s and broken clone commands in every scaffolded project. (#7)
+- `template/src/<<PACKAGE_NAME>>/__init__.py`: change docstring separator from `— X.` (em-dash + literal period) to `: X` (colon, no trailing punctuation) to avoid double-period when `<<DESCRIPTION>>` ends with `.`. (#7)
+- `scripts/init-project.py` `_prompt()`: catch `EOFError` and abort cleanly with a message pointing at `--values <json>`. Non-TTY pipes (CI/scripted) no longer crash with an uncaught traceback. (#7)
+- `scripts/init-project.py` `_derive_silent()`: every silent fallback (AUTHOR_NAME, AUTHOR_EMAIL, GITHUB_USERNAME) now prints an `ℹ` notice naming the resolved value and its source (git config / gh CLI). (#7)
+
+## [v1.4.0] - 2026-05-12
+
+### Added
+- `scripts/init-project.py`: Python 3.11+ stdlib bootstrap CLI with tmpdir staging, atomic swap, and in-memory rollback on failure. Supports `--in-place` (default) and `--target <dir>` modes. (#6)
+- Flags: `--values <json>` (non-interactive), `--dry-run`, `--keep-history`, `--reset-history`, `--no-install`, `--yes`. (#6)
+- `tests/test_init_project.py`: smoke test for `--in-place` mode using `shutil.copytree` fork into tmpdir; asserts no stray placeholders, scaffold-only files removed, template files at root, and first commit present. (#6)
+- `examples/values.example.json`: pre-filled placeholder values template for non-interactive bootstrap. (#6)
+- `examples/README.md`: placeholder reference and derivation notes for direct-clone users. (#6)
+
+### Changed
+- Scaffold-repo `README.md` Quick Start reframed to three paths: Option A (`Use this template` + `init-project.py`), Option B (`git clone` + `init-project.py --target`), Option C (Claude Code skill — optional convenience). Demotes the Claude skill from primary path to opt-in callout. (#6)
+- `template/CLAUDE.md`: gains "Optional file" header; marks the file as Claude Code-specific and safe to delete otherwise. (#6)
+- `template/docs/enforcement-model.md`: Tier 2 reframes the Claude Code `rule-check-bash.sh` hook as an optional editor-specific addition rather than a primary enforcement mechanism. (#6)
+
+## [v1.3.0] - 2026-05-12
+
+### Added
+- `template/docs/concepts.md`: 10-entry glossary covering venv, src layout, type hints, ruff, pyright, pre-commit, pytest fixtures, pinning tests, Conventional Commits, ADR, and Keep-a-Changelog + coverage gate. One short paragraph and canonical link per entry. (#5)
+- `template/docs/enforcement-model.md`: four-tier rule-hierarchy reference (CI/tests → pre-commit → prose → memory) with worked example for CI failure diagnosis. (#5)
+- `template/src/<<PACKAGE_NAME>>/example.py`: deletable hello-world with `greet()` function and `Greeter` dataclass demonstrating type hints, docstrings, and dataclass usage. Paired deletion header references `template/tests/test_example.py`. (#5)
+- `template/tests/test_example.py`: `TestGreet` and `TestGreeter` covering 100% branch coverage so the 95% coverage gate stays green after scaffolding. (#5)
+
+### Changed
+- `template/README.md`: add callout linking `concepts.md` and `enforcement-model.md`; reorder Next Steps to lead with `make test` and end with "delete the example pair"; add collapsible `<details>` TDD walkthrough. (#5)
+- `scripts/scaffold.sh`: add `pip install -e .` after dependency install and before pre-commit install and pytest gate, enabling `from <pkg> import …` in tests without manual pythonpath configuration. (#5)
 
 ## [v1.2.0] - 2026-05-12
 

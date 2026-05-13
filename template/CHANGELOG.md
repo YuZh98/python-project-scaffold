@@ -15,9 +15,3 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
   - Add the PR number or commit hash at the end of each entry.
   - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
 -->
-
-### Added
-
-### Changed
-
-### Fixed
