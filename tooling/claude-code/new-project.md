@@ -75,6 +75,7 @@ Pre-clone summary — please review
   Target dir        $TARGET
   GitHub repo       github.com/$ACTIVE_GH_LOGIN/$NAME
   Active gh account $ACTIVE_GH_LOGIN
+  Scaffold version  v1.7.1
   License           MIT (default; edit LICENSE + pyproject.toml to change)
   Python floor      3.11 (default; edit pyproject.toml to change)
 
@@ -89,7 +90,7 @@ If user types anything except `y`/`Y`/`yes`/Enter, abort cleanly without writing
 
 ```bash
 SCAFFOLD_TMP=$(mktemp -d)
-SCAFFOLD_VERSION="v1.7.0"
+SCAFFOLD_VERSION="v1.7.1"
 git clone --depth 1 --branch "$SCAFFOLD_VERSION" \
   https://github.com/YuZh98/python-project-scaffold.git "$SCAFFOLD_TMP"
 ```
@@ -143,6 +144,13 @@ rm -rf "$(dirname "$VALUES")"
 
 If `init-project.py` exits non-zero, abort the skill and print its stderr. The local repo at `$TARGET` may be partially set up — see the rollback story in `init-project.py`.
 
+To recover: fix the root cause, then either (a) delete `$TARGET` and re-invoke the skill, or (b) complete setup manually:
+
+```bash
+cd $TARGET
+make install       # re-runs venv + deps + pre-commit + first commit
+```
+
 ### Step 6 — Create GitHub repo + push
 
 ```bash
@@ -150,15 +158,20 @@ cd "$TARGET"
 gh repo create "$ACTIVE_GH_LOGIN/$NAME" \
   --"$VISIBILITY" \
   --source=. \
-  --push \
+  --remote=origin \
   --description "$DESC"
+git remote set-url origin "https://github.com/$ACTIVE_GH_LOGIN/$NAME.git"
+git push -u origin main
 ```
 
 If `gh repo create` fails (name collision, permission), KEEP the local repo intact and print:
 
 ```
 Local scaffold ready at $TARGET — manual push:
-  cd $TARGET && gh repo create $ACTIVE_GH_LOGIN/$NAME --$VISIBILITY --source=. --push --description "$DESC"
+  cd $TARGET
+  gh repo create $ACTIVE_GH_LOGIN/$NAME --$VISIBILITY --description "$DESC"
+  git remote set-url origin "https://github.com/$ACTIVE_GH_LOGIN/$NAME.git"
+  git push -u origin main
 ```
 
 Then exit cleanly.
@@ -216,6 +229,6 @@ If the user invokes the skill with the equivalent of `--dry-run` (e.g. "/new-pro
 
 ## Updates and drift
 
-- This skill pins to scaffold release tag `v1.7.0` via `SCAFFOLD_VERSION`. To adopt a new scaffold release, bump the tag in Step 4 and review the scaffold's `CHANGELOG.md` between versions.
+- This skill pins to scaffold release tag `v1.7.1` via `SCAFFOLD_VERSION`. To adopt a new scaffold release, bump the tag in Step 4 and review the scaffold's `CHANGELOG.md` between versions.
 - The scaffold's interactive prompts and validators are the source of truth — the skill must not re-implement them. If `init-project.py` changes its prompt set, this skill's Step 5 description should be updated to match (but no behavioral change needed in the skill itself).
 - Compatibility contract: this skill expects `init-project.py --target` to be a stable interface. Breaking changes to that interface trigger a scaffold-major-version bump and require a skill update.

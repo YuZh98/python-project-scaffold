@@ -17,7 +17,7 @@ class TestScaffoldEndToEnd:
         "<<PROJECT_NAME>>":    "smoketest-app",
         "<<PROJECT_TITLE>>":   "Smoketest App",
         "<<PACKAGE_NAME>>":    "smoketest_app",
-        "<<DESCRIPTION>>":     "Smoke test scaffold output.",
+        "<<DESCRIPTION>>":     "A realistic-length description for smoke-testing scaffold output.",
         "<<AUTHOR_NAME>>":     "Test User",
         "<<AUTHOR_EMAIL>>":    "test@example.com",
         "<<YEAR>>":            "2026",

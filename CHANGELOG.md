@@ -15,6 +15,31 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
   - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
 -->
 
+## [v1.7.1] - 2026-05-13
+
+### Fixed
+- `template/src/<<PACKAGE_NAME>>/__init__.py` single-line docstring overflows ruff E501 for non-trivial descriptions; changed to multi-line format. (#10)
+- Skill Step 6: `gh repo create --push` defaults to SSH, failing for users without SSH keys configured; decoupled create and push, now pushes via HTTPS explicitly. (#10)
+
+### Changed
+- Skill Step 3 pre-clone summary table now shows the pinned scaffold version. (#10)
+- Skill Step 5 error handler now includes a recovery path (delete and re-invoke, or complete manually with `make install`). (#10)
+- `tests/test_scaffold.py` SAMPLE_VALUES description lengthened to realistic ~65 chars — ensures CI catches E501-class issues in the template. (#10)
+
+## [v1.7.0] - 2026-05-13
+
+### Fixed
+- `scripts/scaffold.sh`: `<<PYTHON_FLOOR>>` read from values.json for floor assertion; missing parse caused assertion to silently pass with empty value. (#9)
+- `scripts/scaffold.sh`: `GIT_AUTHOR_NAME`/`GIT_AUTHOR_EMAIL`/`GIT_COMMITTER_*` env vars now exported before the first commit; bare CI runners with no global git identity no longer fail with exit 128. (#9)
+
+### Added
+- `tooling/claude-code/new-project.md`: skill now builds a full `values.json` and passes `--values` to `init-project.py --target`; eliminated double-prompt where script re-asked all fields despite `--yes`. (#9)
+- `template/.pre-commit-config.yaml`: Conventional Commits 13-type canonical list enforced via `conventional-pre-commit` hook on commit-msg stage. (#9)
+- `SECURITY.md`, `CONTRIBUTING.md`, `.github/pull_request_template.md` added for OSS hygiene. (#9)
+
+### Changed
+- `CHANGELOG.md`: backfilled entries for v1.3.0, v1.4.0, v1.5.0 which were shipped without changelog entries. (#9)
+
 ## [v1.6.0] - 2026-05-12
 
 ### Added
