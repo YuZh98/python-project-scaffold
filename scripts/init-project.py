@@ -513,6 +513,16 @@ def _mode_target(args: argparse.Namespace) -> None:
         args.values = str(tmp_values)
     try:
         target = Path(args.target).resolve()
+        if args.dry_run:
+            import json as _json
+            with open(args.values) as _f:
+                _vals = _json.load(_f)
+            print("[DRY-RUN] --target mode: would bootstrap project at", target)
+            print("[DRY-RUN] Values that would be substituted:")
+            for _k, _v in _vals.items():
+                print(f"  {_k}: {_v}")
+            print("[DRY-RUN] No files written, no git history created.")
+            return
         if target.exists() and any(target.iterdir()):
             _abort(f"Target {target} exists and is non-empty.", 3)
         target.mkdir(parents=True, exist_ok=True)
