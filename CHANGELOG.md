@@ -6,6 +6,23 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · SemVer.
 
 ## [Unreleased]
 
+<!--
+Keep-a-Changelog conventions (see GUIDELINES.md §10):
+  - One change → one bullet, imperative mood (e.g. "Add foo").
+  - Six legal section headings, in this order — omit empty ones before releasing:
+    Added · Changed · Fixed · Removed · Deprecated · Security.
+  - Add the PR number or commit hash at the end of each entry.
+  - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
+-->
+
+### Added
+
+### Changed
+
+### Fixed
+
+## [v1.1.0] - 2026-05-12
+
 ### Added
 - `<<GITHUB_USERNAME>>` placeholder (10th required). `template/pyproject.toml [project.urls]` now uses the GitHub login instead of `<<AUTHOR_NAME>>`. Manifest now 10 required + 1 auto-derived (was 9 + 1).
 - `.scaffold-version` provenance file written into every scaffolded repo at commit 1 (`manifest_version` + `scaffold_sha` + `scaffolded_at`).
