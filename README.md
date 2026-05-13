@@ -38,10 +38,6 @@ python3 /tmp/scaffold/scripts/init-project.py --target /path/to/new-project
 
 This copies the substituted template to `/path/to/new-project` and leaves the scaffold checkout untouched.
 
-### Option C — Claude Code skill (optional convenience for Claude users)
-
-If you use [Claude Code](https://claude.com/claude-code), install the `/new-project` skill at `~/.claude/skills/new-project/SKILL.md`. The skill wraps `init-project.py` with 4-prompt UX and an automatic GitHub repo creation + branch-protection step. See the skill's README for setup.
-
 ## What you get
 
 A new project bootstrapped from this scaffold ships with, on day 0:
@@ -53,6 +49,22 @@ A new project bootstrapped from this scaffold ships with, on day 0:
 - **Hello-world example**: `src/<your-package>/example.py` + `tests/test_example.py` paired demonstration. Delete both when you write your first real module.
 - **Dependabot** for `pip` + `github-actions` (weekly, grouped minor/patch).
 - **OSS hygiene**: LICENSE (MIT default), SECURITY.md, CONTRIBUTING.md, issue + PR templates.
+
+## Claude Code users (optional)
+
+If you use [Claude Code](https://claude.com/claude-code), install the `/new-project` skill to get a 3-prompt UX with automatic GitHub repo creation and branch protection on top of the scaffold's own bootstrap:
+
+```bash
+git clone --depth 1 --branch v1.6.0 https://github.com/YuZh98/python-project-scaffold.git /tmp/scaffold
+mkdir -p ~/.claude/skills/new-project
+cp /tmp/scaffold/tooling/claude-code/new-project.md ~/.claude/skills/new-project/SKILL.md
+```
+
+Then invoke `/new-project` in any Claude Code session. The skill calls `scripts/init-project.py` under the hood — same engine as Options A and B.
+
+The skill is **opt-in**. The scaffold works identically without it.
+
+Source: [`tooling/claude-code/new-project.md`](tooling/claude-code/new-project.md). See [`tooling/README.md`](tooling/README.md) for the full integrations directory.
 
 ## Placeholders
 
@@ -83,4 +95,4 @@ MIT — see [LICENSE](LICENSE).
 - [`scripts/substitute.py`](scripts/substitute.py) — substitution engine
 - [`tests/test_init_project.py`](tests/test_init_project.py) — smoke test for the bootstrap flow
 - [`tests/test_scaffold.py`](tests/test_scaffold.py) — smoke test for the target-dir flow
-- [`tests/test_skill_flow.py`](tests/test_skill_flow.py) — SKILL.md ↔ manifest drift guard
+- [`tooling/`](tooling/) — opt-in editor / AI-assistant integrations (e.g. Claude Code skill)

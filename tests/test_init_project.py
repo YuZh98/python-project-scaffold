@@ -97,7 +97,6 @@ class TestInitProjectInPlace:
             "scripts/scaffold.sh",
             "template.manifest.json",
             "tests/test_scaffold.py",
-            "tests/test_skill_flow.py",
             "tests/test_init_project.py",
         ):
             assert not (fork / rel).exists(), f"{rel} still present in fork"
