@@ -1,14 +1,12 @@
 ---
 name: new-project
 description: >
-  Bootstrap a new Python project from python-project-scaffold with full rule-guarding wired
-  from commit 1: ruff + pyright basic + pytest + deprecation-strict + coverage 95% gate +
-  pre-commit hooks + 5-rule pinning test starter + Keep-a-Changelog + ADR ledger.
-  Asks the user 3 questions (name, description, visibility) and applies silent defaults for
-  license (MIT) and Python floor (3.11); everything else (author, email, year, GitHub login,
-  ruff target) is auto-derived from git config and gh CLI.
-  Use when user says "/new-project", "scaffold new project", "bootstrap new repo",
-  "start a new python project", or invokes /new-project.
+  Invoke for /new-project or any request to create, start, scaffold, bootstrap, initialize,
+  or spin up a new Python project or Python GitHub repository from scratch. Use this — not
+  general coding — when the user wants a fresh Python repo that doesn't exist yet, with or
+  without mentioning specific tooling. Automates GitHub repo creation, linting, testing,
+  type checking, pre-commit hooks, and coverage in one step. Skip for: existing projects,
+  non-Python languages, or questions about what templates contain.
 ---
 
 # New-Project Skill
