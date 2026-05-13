@@ -21,6 +21,19 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
 
 ### Fixed
 
+## [v1.2.0] - 2026-05-12
+
+### Added
+- `template/SECURITY.md`: vulnerability reporting policy; uses `<<AUTHOR_EMAIL>>` placeholder.
+- `template/CONTRIBUTING.md`: dev setup, check commands, commit conventions; uses project placeholders.
+- `template/.github/ISSUE_TEMPLATE/bug_report.md` and `feature_request.md`: GitHub issue templates.
+- `template/.github/pull_request_template.md`: PR checklist (test, lint, CHANGELOG, type-hints gate).
+- `template/Makefile`: `make format` (ruff format), `make typecheck` (pyright), `make coverage` (pytest + 95% gate).
+
+### Changed
+- `template/Makefile`: `make lint` now runs ruff only; `make typecheck` is a separate target (mirrors CI step separation).
+- `template/.pre-commit-config.yaml`: bump ruff pre-commit hook from v0.6.0 to v0.15.12.
+
 ## [v1.1.0] - 2026-05-12
 
 ### Added
