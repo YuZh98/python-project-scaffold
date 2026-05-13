@@ -15,6 +15,35 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
   - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
 -->
 
+## [v1.7.6] - 2026-05-13
+
+### Added
+- `.github/workflows/release-skill.yml` — CI that builds and attaches `new-project.skill` to every release tag automatically. (#15)
+- `tooling/claude-code/scripts/package.sh` — build script that zips `new-project.md` + `scripts/write_license.py` into a distributable `.skill` archive. (#15)
+
+### Changed
+- `README.md`: Claude Code install section updated to use `gh release download` one-liner; version pin updated to v1.7.6. (#15)
+
+## [v1.7.5] - 2026-05-13
+
+### Changed
+- `tooling/claude-code/new-project.md` (skill): condensed from 452 to 212 lines — license texts extracted to bundled `scripts/write_license.py`, dead sections removed, SCAFFOLD_VERSION bumped to v1.7.4. (#14)
+
+## [v1.7.4] - 2026-05-13
+
+### Added
+- Skill Step 2: license question (MIT/Apache-2.0/BSD-3-Clause/Unlicense, default MIT); non-MIT choices rewrite `$TARGET/LICENSE` with correct SPDX text and amend the first commit. (#13)
+- Skill: two examples added (happy path + name-validation re-prompt). (#13)
+
+### Changed
+- Skill Step 2: visibility default changed from `public` to `private`. (#13)
+- Skill Step 3: `SCAFFOLD_VERSION` moved to Step 3 so summary table can reference it; Author, Email, Ruff target rows added to pre-clone summary. (#13)
+
+## [v1.7.3] - 2026-05-13
+
+### Changed
+- `tooling/claude-code/new-project.md` (skill): description rewritten with action-verb-first phrasing — adds "create", "initialize", "spin up" trigger variants; clearer skip conditions. (#12)
+
 ## [v1.7.2] - 2026-05-13
 
 ### Fixed
