@@ -14,15 +14,16 @@ class TestScaffoldEndToEnd:
     """Full scaffold runs cleanly and produces a green-CI repo."""
 
     SAMPLE_VALUES = {
-        "<<PROJECT_NAME>>":   "smoketest-app",
-        "<<PROJECT_TITLE>>":  "Smoketest App",
-        "<<PACKAGE_NAME>>":   "smoketest_app",
-        "<<DESCRIPTION>>":    "Smoke test scaffold output.",
-        "<<AUTHOR_NAME>>":    "Test User",
-        "<<AUTHOR_EMAIL>>":   "test@example.com",
-        "<<YEAR>>":           "2026",
-        "<<LICENSE_ID>>":     "MIT",
-        "<<PYTHON_FLOOR>>":   "3.11",
+        "<<PROJECT_NAME>>":    "smoketest-app",
+        "<<PROJECT_TITLE>>":   "Smoketest App",
+        "<<PACKAGE_NAME>>":    "smoketest_app",
+        "<<DESCRIPTION>>":     "Smoke test scaffold output.",
+        "<<AUTHOR_NAME>>":     "Test User",
+        "<<AUTHOR_EMAIL>>":    "test@example.com",
+        "<<YEAR>>":            "2026",
+        "<<LICENSE_ID>>":      "MIT",
+        "<<PYTHON_FLOOR>>":    "3.11",
+        "<<GITHUB_USERNAME>>": "smoketestuser",
     }
 
     def test_scaffold_produces_green_repo(self, tmp_path: Path) -> None:

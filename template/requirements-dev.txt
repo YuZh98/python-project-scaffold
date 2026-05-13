@@ -1,5 +1,6 @@
-ruff>=0.6
-pyright>=1.1
-pytest>=8.0
-pytest-cov>=5.0
-pre-commit>=4.0
+# Upper bounds prevent silent major-version breakage. Dependabot will bump within the range; major-version bumps arrive as separate PRs for review.
+ruff>=0.6,<2
+pyright>=1.1,<2
+pytest>=8.0,<10
+pytest-cov>=5.0,<8
+pre-commit>=4.0,<6

@@ -12,10 +12,10 @@ license = "<<LICENSE_ID>>"
 requires-python = ">=<<PYTHON_FLOOR>>"
 
 [project.urls]
-Homepage = "https://github.com/<<AUTHOR_NAME>>/<<PROJECT_NAME>>"
-Repository = "https://github.com/<<AUTHOR_NAME>>/<<PROJECT_NAME>>"
-Issues = "https://github.com/<<AUTHOR_NAME>>/<<PROJECT_NAME>>/issues"
-Changelog = "https://github.com/<<AUTHOR_NAME>>/<<PROJECT_NAME>>/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/<<GITHUB_USERNAME>>/<<PROJECT_NAME>>"
+Repository = "https://github.com/<<GITHUB_USERNAME>>/<<PROJECT_NAME>>"
+Issues = "https://github.com/<<GITHUB_USERNAME>>/<<PROJECT_NAME>>/issues"
+Changelog = "https://github.com/<<GITHUB_USERNAME>>/<<PROJECT_NAME>>/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]
