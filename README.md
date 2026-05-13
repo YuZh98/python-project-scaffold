@@ -32,7 +32,7 @@ The `init-project.py` script supports `--dry-run` (preview without writing), `--
 If you prefer to keep the scaffold and the project in separate trees:
 
 ```bash
-git clone --depth 1 --branch v1.3.0 https://github.com/YuZh98/python-project-scaffold.git /tmp/scaffold
+git clone --depth 1 --branch v1.7.0 https://github.com/YuZh98/python-project-scaffold.git /tmp/scaffold
 python3 /tmp/scaffold/scripts/init-project.py --target /path/to/new-project
 ```
 
@@ -55,7 +55,7 @@ A new project bootstrapped from this scaffold ships with, on day 0:
 If you use [Claude Code](https://claude.com/claude-code), install the `/new-project` skill to get a 3-prompt UX with automatic GitHub repo creation and branch protection on top of the scaffold's own bootstrap:
 
 ```bash
-git clone --depth 1 --branch v1.6.0 https://github.com/YuZh98/python-project-scaffold.git /tmp/scaffold
+git clone --depth 1 --branch v1.7.0 https://github.com/YuZh98/python-project-scaffold.git /tmp/scaffold
 mkdir -p ~/.claude/skills/new-project
 cp /tmp/scaffold/tooling/claude-code/new-project.md ~/.claude/skills/new-project/SKILL.md
 ```

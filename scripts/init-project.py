@@ -54,6 +54,7 @@ SCAFFOLD_ONLY_FILES: list[str] = [
 # Scaffold-only directories to remove (after files cleared).
 SCAFFOLD_ONLY_DIRS: list[str] = [
     "examples",  # if it exists at scaffold-repo level (added in same PR)
+    "tooling",  # opt-in editor / AI integrations layer; not for derived projects
     "template",  # always last — entire template/ subdir after move
     "scripts",  # cleared after self-delete
 ]
@@ -247,7 +248,14 @@ def _confirm(values: dict[str, str], reset_history: bool, no_install: bool) -> N
 def _gate(skip: bool) -> None:
     if skip:
         return
-    confirm = input("Proceed with these settings? [Y/n] ").strip().lower()
+    try:
+        confirm = input("Proceed with these settings? [Y/n] ").strip().lower()
+    except EOFError:
+        _abort(
+            "Confirmation prompt requires a TTY for stdin. "
+            "Use --yes to skip the confirmation, or --values <path.json> for fully non-interactive.",
+            4,
+        )
     if confirm and confirm not in {"y", "yes"}:
         _abort("Aborted by user.", 0)
 
@@ -493,20 +501,27 @@ def _mode_in_place(args: argparse.Namespace) -> None:
 
 def _mode_target(args: argparse.Namespace) -> None:
     """Delegate to existing scaffold.sh for target-dir mode."""
+    tmp_dir_to_clean: Path | None = None
     if not args.values:
         # In target mode we still need values; collect interactively then write JSON.
         values = _collect_interactive()
         values = _derive_silent(values)
-        tmp_values = Path(tempfile.mkdtemp()) / "values.json"
+        tmp_dir = Path(tempfile.mkdtemp())
+        tmp_dir_to_clean = tmp_dir
+        tmp_values = tmp_dir / "values.json"
         tmp_values.write_text(json.dumps(values))
         args.values = str(tmp_values)
-    target = Path(args.target).resolve()
-    if target.exists() and any(target.iterdir()):
-        _abort(f"Target {target} exists and is non-empty.", 3)
-    target.mkdir(parents=True, exist_ok=True)
-    cmd = ["bash", str(REPO_ROOT / "scripts" / "scaffold.sh"), str(target), args.values]
-    result = subprocess.run(cmd)
-    sys.exit(result.returncode)
+    try:
+        target = Path(args.target).resolve()
+        if target.exists() and any(target.iterdir()):
+            _abort(f"Target {target} exists and is non-empty.", 3)
+        target.mkdir(parents=True, exist_ok=True)
+        cmd = ["bash", str(REPO_ROOT / "scripts" / "scaffold.sh"), str(target), args.values]
+        result = subprocess.run(cmd)
+        sys.exit(result.returncode)
+    finally:
+        if tmp_dir_to_clean is not None:
+            shutil.rmtree(tmp_dir_to_clean, ignore_errors=True)
 
 
 def main() -> None:

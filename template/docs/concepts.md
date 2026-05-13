@@ -48,7 +48,7 @@ Tests that assert structural invariants about the code rather than functional be
 
 ## Conventional Commits
 
-A commit-message format: `<type>(<scope>): <subject>` where type is `feat` / `fix` / `chore` / `docs` / `test` / `refactor` / `style` / `perf`. Subject ≤ 72 chars, imperative mood ("add" not "added"). The format powers automated changelog generation and forces commit authors to declare intent.
+A commit-message format: `<type>(<scope>): <subject>` where type is `feat` / `fix` / `chore` / `docs` / `refactor` / `test` / `style` / `perf` / `build` / `ci` / `schema` / `config` / `review`. Subject ≤ 72 chars, imperative mood ("add" not "added"). The format powers automated changelog generation and forces commit authors to declare intent.
 
 → [Conventional Commits spec](https://www.conventionalcommits.org/)
 

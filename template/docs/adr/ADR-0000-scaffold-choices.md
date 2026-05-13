@@ -47,8 +47,9 @@ prose-only. New rules that need a grace period ship as `@pytest.mark.xfail`
 **D3 — Commit format: Conventional Commits**
 
 All commits use `<type>(<scope>): <subject>` format. Types: `feat`, `fix`,
-`chore`, `docs`, `refactor`, `test`, `ci`. This enables automated CHANGELOG
-generation and makes `git log --oneline` scannable.
+`chore`, `docs`, `refactor`, `test`, `style`, `perf`, `build`, `ci`, `schema`,
+`config`, `review`. This enables automated CHANGELOG generation and makes
+`git log --oneline` scannable.
 
 **D4 — Changelog format: Keep-a-Changelog**
 
