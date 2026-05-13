@@ -1,0 +1,12 @@
+{
+  "<<PROJECT_NAME>>":    "your-project-name",
+  "<<PROJECT_TITLE>>":   "Your Project Name",
+  "<<PACKAGE_NAME>>":    "your_project_name",
+  "<<DESCRIPTION>>":     "One-line description of your project.",
+  "<<AUTHOR_NAME>>":     "Your Name",
+  "<<AUTHOR_EMAIL>>":    "you@example.com",
+  "<<YEAR>>":            "2026",
+  "<<LICENSE_ID>>":      "MIT",
+  "<<PYTHON_FLOOR>>":    "3.11",
+  "<<GITHUB_USERNAME>>": "yourgithubusername"
+}

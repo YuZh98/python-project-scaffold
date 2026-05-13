@@ -1,5 +1,7 @@
 # Claude Code Project Rules
 
+> **Optional file.** Loaded by Claude Code if you use it as your editor. Safe to delete otherwise — no other tool reads this file.
+
 _Project-specific rules. Universal rules inherit from `~/.claude/CLAUDE.md`._
 
 ## Layer model (inherited from universal)

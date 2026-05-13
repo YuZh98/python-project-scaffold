@@ -1,46 +1,58 @@
 # python-project-scaffold
 
-A Python project scaffold with mature rule-guarding wired from commit 1.
+A Python project scaffold with mature rule-guarding wired from commit 1. Fork or clone, run one command, get a green-CI project ready for your first feature.
 
-[GitHub template repo](https://github.com/YuZh98/python-project-scaffold).
+## Why use this
+
+Starting a new Python project well takes ~30 minutes of repetitive setup: venv, ruff, pyright, pytest, coverage, pre-commit hooks, GitHub Actions matrix, dependabot, issue templates, CHANGELOG scaffolding, ADR ledger, type-hint discipline, src layout. Get it wrong and you spend the first week of every project hunting drift instead of writing code. This scaffold ships every convention pre-wired so you start at "first feature" instead of "first config."
 
 ## Who is this for
 
 **Beginners** picking up software engineering practices on a real project. The scaffold ships every convention the discipline expects (tests, type hints, CHANGELOG, ADRs) wired up from commit 1, so you learn by editing a working example rather than configuring from scratch. Pair this with [`docs/concepts.md`](template/docs/concepts.md) (glossary) and [`docs/enforcement-model.md`](template/docs/enforcement-model.md) (architecture) inside any scaffolded project.
 
-**Experienced devs** starting a new project. Skip ~30 minutes of repetitive setup. Pin your skill or manual clone to a release tag (`v1.2.0`+), customize the 4 prompts, get a green-CI repo ready for the first feature commit. The opinionated defaults (Python 3.11+, src/ layout, ruff + pyright basic, pytest, pre-commit, 95% coverage) are designed to be a sensible baseline you rarely need to touch.
+**Experienced devs** starting a new project. Skip ~30 minutes of repetitive setup. Pin to a release tag (`v1.3.0`+), customize four values, get a green-CI repo ready for the first feature commit. The opinionated defaults (Python 3.11+, src/ layout, ruff + pyright basic, pytest, pre-commit, 95% coverage) are designed to be a sensible baseline you rarely need to touch.
+
+## Quick start
+
+### Option A — GitHub "Use this template" (recommended for new repos)
+
+1. Click **"Use this template"** at the top of [this repo on GitHub](https://github.com/YuZh98/python-project-scaffold) → create a new repo under your account.
+2. Clone the new repo locally.
+3. Run the interactive bootstrap:
+   ```bash
+   python3 scripts/init-project.py
+   ```
+   You'll be asked for project name, description, license, Python floor. Everything else (package name, year, author, GitHub username) is auto-derived from `git config` and `gh` CLI. The script stages the substituted tree to a tmpdir, atomically swaps it to the repo root, removes scaffold-only files, optionally resets git history, and makes the first commit.
+4. Run `make test` to confirm the green CI baseline.
+
+The `init-project.py` script supports `--dry-run` (preview without writing), `--values <path.json>` (non-interactive), `--keep-history` (preserve scaffold commits), and `--no-install` (skip `make install`).
+
+### Option B — Clone + scaffold to a separate directory
+
+If you prefer to keep the scaffold and the project in separate trees:
+
+```bash
+git clone --depth 1 --branch v1.3.0 https://github.com/YuZh98/python-project-scaffold.git /tmp/scaffold
+python3 /tmp/scaffold/scripts/init-project.py --target /path/to/new-project
+```
+
+This copies the substituted template to `/path/to/new-project` and leaves the scaffold checkout untouched.
+
+### Option C — Claude Code skill (optional convenience for Claude users)
+
+If you use [Claude Code](https://claude.com/claude-code), install the `/new-project` skill at `~/.claude/skills/new-project/SKILL.md`. The skill wraps `init-project.py` with 4-prompt UX and an automatic GitHub repo creation + branch-protection step. See the skill's README for setup.
 
 ## What you get
 
 A new project bootstrapped from this scaffold ships with, on day 0:
 
-- **CI**: ruff + pyright (basic) + pytest + deprecation-strict pass + coverage gate (95%) across Python 3.11–3.14
-- **Pre-commit hooks**: ruff (lint + autofix), trailing whitespace, EOF newline, YAML/TOML validity, merge-conflict markers
-- **Pinning tests** (`tests/test_rules.py`): no `print()` debug, no secrets in tree, public functions have type hints, no mutable default args, import-contract placeholder
-- **Documentation scaffolds**: `DESIGN.md`, `GUIDELINES.md`, `CLAUDE.md`, `CHANGELOG.md` (Keep-a-Changelog), `docs/adr/` ledger with a worked-example ADR-0000
-- **Dependabot** for `pip` + `github-actions` (weekly, grouped minor/patch)
-- **Layer model** inherited from `~/.claude/CLAUDE.md` (4-tier rule enforcement)
-
-## Quick start (manual)
-
-```bash
-git clone --depth 1 --branch v1.0.0 https://github.com/YuZh98/python-project-scaffold.git /tmp/scaffold
-cp -R /tmp/scaffold/template/. /path/to/new-project/
-cd /path/to/new-project
-# Create a values.json with the 10 placeholders (see template.manifest.json for the list)
-python3 /tmp/scaffold/scripts/substitute.py --target . --values values.json
-git init && git add . && git commit -m "feat: initial scaffold"
-```
-
-## Quick start (Claude Code skill)
-
-If you have the `/new-project` skill installed:
-
-```
-/new-project
-```
-
-The skill prompts for project name, description, license, visibility, then clones, substitutes, initializes git, runs tests, makes the first commit, and pushes to GitHub. See [the skill](https://github.com/YuZh98/python-project-scaffold/blob/main/docs/skill-usage.md) for details.
+- **CI**: ruff + pyright (basic) + pytest + deprecation-strict pass + coverage gate (95%) across Python 3.11–3.14.
+- **Pre-commit hooks**: ruff (lint + autofix), trailing whitespace, EOF newline, YAML/TOML validity, merge-conflict markers.
+- **Pinning tests** (`tests/test_rules.py`): no `print()` debug, no secrets in tree, public functions have type hints, no mutable default args, import-contract placeholder.
+- **Documentation scaffolds**: `README.md`, `DESIGN.md`, `GUIDELINES.md`, `CHANGELOG.md` (Keep-a-Changelog), `docs/concepts.md` (glossary), `docs/enforcement-model.md` (4-tier rule architecture), `docs/adr/` ledger with a worked-example ADR-0000.
+- **Hello-world example**: `src/<your-package>/example.py` + `tests/test_example.py` paired demonstration. Delete both when you write your first real module.
+- **Dependabot** for `pip` + `github-actions` (weekly, grouped minor/patch).
+- **OSS hygiene**: LICENSE (MIT default), SECURITY.md, CONTRIBUTING.md, issue + PR templates.
 
 ## Placeholders
 
@@ -48,7 +60,7 @@ The skill prompts for project name, description, license, visibility, then clone
 
 ## Versioning
 
-The scaffold uses release tags (`v1.0.0`, `v1.1.0`, ...). Pin your `/new-project` skill or manual clone to a specific tag — never clone latest `main`. See [CHANGELOG.md](CHANGELOG.md) for what each release changed.
+This scaffold uses release tags (`v1.0.0`, `v1.1.0`, ...). Pin your clone or skill to a specific tag — never use latest `main`. See [CHANGELOG.md](CHANGELOG.md) for what each release changed.
 
 ## Maintenance
 
@@ -61,12 +73,14 @@ The scaffold uses release tags (`v1.0.0`, `v1.1.0`, ...). Pin your `/new-project
 
 ## License
 
-MIT.
+MIT — see [LICENSE](LICENSE).
 
 ## See also
 
 - [`template.manifest.json`](template.manifest.json) — placeholder registry
-- [`scripts/scaffold.sh`](scripts/scaffold.sh) — orchestrator
+- [`scripts/init-project.py`](scripts/init-project.py) — interactive bootstrap (primary entry point)
+- [`scripts/scaffold.sh`](scripts/scaffold.sh) — non-interactive target-dir orchestrator (used by CI + skill)
 - [`scripts/substitute.py`](scripts/substitute.py) — substitution engine
-- [`tests/test_scaffold.py`](tests/test_scaffold.py) — end-to-end smoke test
+- [`tests/test_init_project.py`](tests/test_init_project.py) — smoke test for the bootstrap flow
+- [`tests/test_scaffold.py`](tests/test_scaffold.py) — smoke test for the target-dir flow
 - [`tests/test_skill_flow.py`](tests/test_skill_flow.py) — SKILL.md ↔ manifest drift guard
