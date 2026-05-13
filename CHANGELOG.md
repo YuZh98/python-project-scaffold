@@ -15,6 +15,24 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
   - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
 -->
 
+## [v1.7.2] - 2026-05-13
+
+### Fixed
+- `scripts/init-project.py`: `--dry-run` flag silently ignored in `--target` mode; `_mode_target` now prints substituted values and exits without writing files or creating git history. (#11)
+- `tooling/claude-code/new-project.md` (skill): pre-flight git config checks now verify non-empty values, not just key existence — empty `user.name`/`user.email` no longer pass silently. (#11)
+- Skill Step 6: `git push` failure after successful `gh repo create` now prints targeted recovery instructions. (#11)
+- Skill Step 7: `$SCAFFOLD_TMP` was leaked on early-exit paths (no trap); now cleaned via `trap … EXIT` set in Step 4. (#11)
+- Skill Step 6 manual-recovery: used `git remote set-url` (fails if origin not yet set); corrected to `git remote add`. (#11)
+
+### Changed
+- Skill Step 3 pre-clone summary now shows `Author`, `Email`, `Ruff target` (derived from Python floor), and `$SCAFFOLD_VERSION` resolved at runtime. (#11)
+- Skill: `SCAFFOLD_VERSION` constant moved from Step 4 to Step 3 so it can be referenced in the pre-clone summary. (#11)
+- Skill: Step 5 description corrected — `substitute.py` (not `_derive_silent`) auto-derives `<<RUFF_TARGET>>` in `--target --values` mode; `scaffold.sh` (not `make install`) runs the setup phases. (#11)
+- Skill: `--dry-run` section updated to document that Step 4 clone still runs (network required) and that `init-project.py` phase output should be surfaced to the user. (#11)
+- Skill pre-flight: added `python3` availability check; `gh auth` failure message now mentions required `repo` scope. (#11)
+- Skill `--dry-run` trigger list expanded to include natural variants: "show me what would happen", "simulate it", "preview only". (#11)
+- Skill "What NOT to do": added guards against adding commits between Steps 5–7, re-running `make install`, and modifying `$SCAFFOLD_TMP`. (#11)
+
 ## [v1.7.1] - 2026-05-13
 
 ### Fixed
