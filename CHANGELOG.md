@@ -131,6 +131,6 @@ No breaking changes to the scaffold engine, template tree, or `init-project.py` 
 - Worked-example ADR-0000 doubling as the template for ADR-0001.
 - `[build-system]` block in `template/pyproject.toml` enabling editable installs.
 
-### Notes
+### Security
 - Branch protection on `main` requires 1 review + passing `smoke` CI before merge.
-- GitHub Actions pinned to SHAs (Dependabot tracks weekly).
+- GitHub Actions pinned to SHAs; Dependabot tracks weekly.

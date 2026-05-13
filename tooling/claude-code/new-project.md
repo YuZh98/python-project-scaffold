@@ -136,7 +136,7 @@ rm -rf "$(dirname "$VALUES")"
 
 `init-project.py --target --values` skips interactive prompts entirely; the script:
 - Uses the pre-built values.json (all required fields supplied, including silent defaults for license=MIT and Python floor=3.11).
-- Auto-derives author name + email (from `git config`), GitHub username (from `gh api`), year, ruff target via `_derive_silent`.
+- All 10 required placeholders (author, email, year, GitHub username, etc.) are pre-filled by the skill in Step 5; `_derive_silent` only auto-derives `<<RUFF_TARGET>>` from `<<PYTHON_FLOOR>>`.
 - Shows its own confirmation summary and gate (the `--yes` flag bypasses it because the skill already confirmed in Step 3).
 - Stages substituted tree to tmpdir, atomic swap, rollback on failure.
 - Inits git in `$TARGET`, creates venv, installs deps, installs pre-commit hooks (incl. commit-msg hook for Conventional Commits as of v1.5.0+), runs pytest gate, first commit, `make install`.
