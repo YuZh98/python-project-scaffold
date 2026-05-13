@@ -32,10 +32,11 @@ For manual scaffold-only bootstrap without GitHub repo creation, point the user 
 Run, in order:
 
 ```bash
-gh auth status >/dev/null 2>&1 || { echo "Run 'gh auth login' first. (If you have multiple accounts, switch with 'gh auth switch'.)"; exit 1; }
+gh auth status >/dev/null 2>&1 || { echo "Run 'gh auth login' first (needs 'repo' scope for repo creation and branch protection). If you have multiple accounts, switch with 'gh auth switch'."; exit 1; }
 ACTIVE_GH_LOGIN=$(gh api user --jq .login)
-git config --global user.name >/dev/null 2>&1 || { echo "Configure git first: git config --global user.name '<name>' && git config --global user.email '<email>'"; exit 1; }
-git config --global user.email >/dev/null 2>&1 || { echo "Configure git first: git config --global user.email '<email>'"; exit 1; }
+[[ -n "$(git config --global user.name 2>/dev/null)" ]] || { echo "Configure git first: git config --global user.name '<name>' && git config --global user.email '<email>'"; exit 1; }
+[[ -n "$(git config --global user.email 2>/dev/null)" ]] || { echo "Configure git first: git config --global user.email '<email>'"; exit 1; }
+python3 --version >/dev/null 2>&1 || { echo "python3 is required but not found. Install Python 3.11+ and retry."; exit 1; }
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 && { echo "Refusing to run inside an existing git repo. cd to a parent directory and re-invoke."; exit 1; } || true
 ```
 
@@ -56,6 +57,7 @@ DO NOT ask for license or Python floor here — the skill uses silent defaults (
 Compute these derived values (without calling init-project.py — these are the bits the skill needs for the GitHub URL):
 
 ```bash
+SCAFFOLD_VERSION="v1.7.1"
 PACKAGE_NAME=$(echo "$NAME" | tr '-' '_')                       # snake_case
 PROJECT_TITLE=$(echo "$NAME" | tr '-' ' ' | python3 -c "import sys; print(sys.stdin.read().strip().title())")
 TARGET="$(pwd)/$NAME"
@@ -75,27 +77,30 @@ Pre-clone summary — please review
   Target dir        $TARGET
   GitHub repo       github.com/$ACTIVE_GH_LOGIN/$NAME
   Active gh account $ACTIVE_GH_LOGIN
-  Scaffold version  v1.7.1
+  Author            $(git config --global user.name)
+  Email             $(git config --global user.email)
+  Scaffold version  $SCAFFOLD_VERSION
   License           MIT (default; edit LICENSE + pyproject.toml to change)
   Python floor      3.11 (default; edit pyproject.toml to change)
+  Ruff target       py311 (derived from Python floor; edit pyproject.toml to change)
 
 ─────────────────────────────────────────────
 
 Proceed? [Y/n]
 ```
 
-If user types anything except `y`/`Y`/`yes`/Enter, abort cleanly without writing anything.
+If user types anything except `y`/`Y`/`yes`/`Yes`/`YES`/Enter, abort cleanly without writing anything.
 
 ### Step 4 — Clone scaffold to a tmpdir (pinned)
 
 ```bash
 SCAFFOLD_TMP=$(mktemp -d)
-SCAFFOLD_VERSION="v1.7.1"
+trap 'rm -rf "${SCAFFOLD_TMP:?}"' EXIT
 git clone --depth 1 --branch "$SCAFFOLD_VERSION" \
   https://github.com/YuZh98/python-project-scaffold.git "$SCAFFOLD_TMP"
 ```
 
-Bump `SCAFFOLD_VERSION` when adopting a new scaffold release; review the scaffold's `CHANGELOG.md` before bumping.
+Bump `SCAFFOLD_VERSION` in Step 3 (and anywhere it appears) when adopting a new scaffold release; review the scaffold's `CHANGELOG.md` before bumping.
 
 ### Step 5 — Build values.json and delegate to init-project.py
 
@@ -137,19 +142,13 @@ rm -rf "$(dirname "$VALUES")"
 
 `init-project.py --target --values` skips interactive prompts entirely; the script:
 - Uses the pre-built values.json (all required fields supplied, including silent defaults for license=MIT and Python floor=3.11).
-- All 10 required placeholders (author, email, year, GitHub username, etc.) are pre-filled by the skill in Step 5; `_derive_silent` only auto-derives `<<RUFF_TARGET>>` from `<<PYTHON_FLOOR>>`.
+- All 10 required placeholders (author, email, year, GitHub username, etc.) are pre-filled by the skill in Step 5; `substitute.py` auto-derives `<<RUFF_TARGET>>` from `<<PYTHON_FLOOR>>` during substitution.
 - Shows its own confirmation summary and gate (the `--yes` flag bypasses it because the skill already confirmed in Step 3).
-- Stages substituted tree to tmpdir, atomic swap, rollback on failure.
-- Inits git in `$TARGET`, creates venv, installs deps, installs pre-commit hooks (incl. commit-msg hook for Conventional Commits as of v1.5.0+), runs pytest gate, first commit, `make install`.
+- Delegates to `scaffold.sh`, which: copies the template, substitutes placeholders, inits git, creates venv, installs deps, installs pre-commit hooks (incl. commit-msg hook for Conventional Commits), runs pytest gate, and makes the first commit.
 
 If `init-project.py` exits non-zero, abort the skill and print its stderr. The local repo at `$TARGET` may be partially set up — see the rollback story in `init-project.py`.
 
-To recover: fix the root cause, then either (a) delete `$TARGET` and re-invoke the skill, or (b) complete setup manually:
-
-```bash
-cd $TARGET
-make install       # re-runs venv + deps + pre-commit + first commit
-```
+To recover: fix the root cause, then delete `$TARGET` and re-invoke the skill. (If `scaffold.sh` completed but a later step failed, inspect `$TARGET` manually before re-running.)
 
 ### Step 6 — Create GitHub repo + push
 
@@ -161,7 +160,13 @@ gh repo create "$ACTIVE_GH_LOGIN/$NAME" \
   --remote=origin \
   --description "$DESC"
 git remote set-url origin "https://github.com/$ACTIVE_GH_LOGIN/$NAME.git"
-git push -u origin main
+# HTTPS push is intentional — users who prefer SSH can run:
+#   git remote set-url origin git@github.com:$ACTIVE_GH_LOGIN/$NAME.git
+git push -u origin main || {
+  echo "Remote repo created at https://github.com/$ACTIVE_GH_LOGIN/$NAME but push failed."
+  echo "To push manually: cd $TARGET && git push -u origin main"
+  exit 1
+}
 ```
 
 If `gh repo create` fails (name collision, permission), KEEP the local repo intact and print:
@@ -170,7 +175,7 @@ If `gh repo create` fails (name collision, permission), KEEP the local repo inta
 Local scaffold ready at $TARGET — manual push:
   cd $TARGET
   gh repo create $ACTIVE_GH_LOGIN/$NAME --$VISIBILITY --description "$DESC"
-  git remote set-url origin "https://github.com/$ACTIVE_GH_LOGIN/$NAME.git"
+  git remote add origin "https://github.com/$ACTIVE_GH_LOGIN/$NAME.git"
   git push -u origin main
 ```
 
@@ -189,7 +194,7 @@ else
   echo "ℹ Branch protection skipped (private repo on free plan, or transient API error)."
 fi
 
-rm -rf "$SCAFFOLD_TMP"
+# SCAFFOLD_TMP is cleaned up by the trap set in Step 4.
 
 echo ""
 echo "✓ Scaffold complete"
@@ -206,7 +211,8 @@ echo ""
 - Step 3 user declines → abort cleanly; no clone, no files.
 - Step 4 git clone failure → abort with the network error; create nothing.
 - Step 5 init-project.py failure → keep `$TARGET` as-is for user inspection; print init-project.py's stderr.
-- Step 6 gh repo create failure → keep local repo intact; print manual push command.
+- Step 6 gh repo create failure → keep local repo intact; print manual push command (uses `git remote add`, not `git remote set-url`, since origin has not been set yet).
+- Step 6 git push failure → repo was created on GitHub; print targeted recovery: `cd $TARGET && git push -u origin main`.
 - Step 7 branch protection failure → not fatal; print info message and continue (the local + remote repo are usable).
 - All abort paths: clean up `$SCAFFOLD_TMP` if it exists.
 
@@ -218,17 +224,26 @@ echo ""
 - Do not add `Co-Authored-By: Claude` to any commit (the scaffold's first commit message is set by `init-project.py`; the skill never overrides it).
 - Do not re-implement license hints, project-name validation, or package-name derivation — `init-project.py` owns those. The skill intentionally builds a partial values.json in Step 5 to supply known values upfront (name, title, package, description, silent license/floor defaults); this is an integration shim, not a reimplementation of the engine.
 - Do not skip pre-flight checks even if the user appears to be re-invoking after a previous failure.
+- Do not add commits to `$TARGET` between Steps 5 and 7. The first commit is made by `scaffold.sh`; extra commits before the first push break the clean-history invariant.
+- Do not re-run `make install` after Step 5. `scaffold.sh` already ran the full setup phase (venv, deps, pre-commit, pytest, first commit).
+- Do not modify files in `$SCAFFOLD_TMP`. Treat it as read-only; it is cleaned up by the trap at exit.
 
 ## --dry-run
 
-If the user invokes the skill with the equivalent of `--dry-run` (e.g. "/new-project --dry-run" or "preview only"), set `DRY_RUN=1` in Step 5 so `init-project.py` runs in dry-run mode (prints phases, writes nothing). In that case, ALSO skip Steps 6 and 7 (no GitHub repo creation, no branch protection). Print:
+If the user invokes the skill with the equivalent of `--dry-run` (e.g. "/new-project --dry-run" or "preview only"), or natural variants like "just show me what would happen", "simulate it", "preview only":
 
+1. Set `DRY_RUN=1` before Step 5 so `${DRY_RUN:+--dry-run}` is passed to `init-project.py --target`. As of v1.7.2, `init-project.py` correctly handles `--dry-run` in `--target` mode: it prints the values and phases without writing any files or making any git commits.
+2. Skip Steps 6 and 7 (no GitHub repo creation, no branch protection).
+3. Note: Step 4 (clone scaffold) still runs even in dry-run mode — network access is required.
+4. Surface `init-project.py`'s dry-run phase output prominently to the user — this is the primary informational value of dry-run.
+
+Print at the end:
 ```
 [DRY-RUN] No files written, no GitHub repo created.
 ```
 
 ## Updates and drift
 
-- This skill pins to scaffold release tag `v1.7.1` via `SCAFFOLD_VERSION`. To adopt a new scaffold release, bump the tag in Step 4 and review the scaffold's `CHANGELOG.md` between versions.
+- This skill pins to scaffold release tag `v1.7.1` via `SCAFFOLD_VERSION`. To adopt a new scaffold release, bump the tag in Step 3 (where `SCAFFOLD_VERSION` is defined) and review the scaffold's `CHANGELOG.md` between versions.
 - The scaffold's interactive prompts and validators are the source of truth — the skill must not re-implement them. If `init-project.py` changes its prompt set, this skill's Step 5 description should be updated to match (but no behavioral change needed in the skill itself).
 - Compatibility contract: this skill expects `init-project.py --target` to be a stable interface. Breaking changes to that interface trigger a scaffold-major-version bump and require a skill update.
