@@ -207,7 +207,7 @@ echo "  All tests passed."
 # ---------------------------------------------------------------------------
 echo "✓ [10/11] Creating initial commit…"
 
-git -C "${TARGET}" add . "${TARGET}/.scaffold-version"
+git -C "${TARGET}" add .
 git -C "${TARGET}" commit -m "feat: initial scaffold from python-project-scaffold (manifest v${MANIFEST_VERSION})"
 echo "  Initial commit created."
 
