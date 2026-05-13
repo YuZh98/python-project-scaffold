@@ -23,9 +23,9 @@ Rules at this tier are non-negotiable: a red CI run blocks merge.
 | Mechanism | What it catches | Where to fix |
 |-----------|-----------------|--------------|
 | `pre-commit` hooks | trailing whitespace, missing EOF newline, malformed YAML/TOML, merge-conflict markers, ruff auto-fixable issues | Re-run `git add` after the hook auto-fixes; commit again |
-| `~/.claude/hooks/rule-check-bash.sh` (Claude Code only) | AI-attribution trailers in commit messages, status literals in production code, `print()` in new code | Edit the staged content; remove the violating pattern |
+| `rule-check-bash.sh` (optional; Claude Code only) | If you use Claude Code as your editor, you can install a global PreToolUse hook that blocks `git commit` on patterns like AI-attribution trailers, status literals, or `print()` in production. Triggered only inside Claude Code sessions — not in terminal `git commit`. For terminal-agnostic enforcement, push the rule to Tier 1 (pinning test or CI). | Install the hook from the scaffold's universal-rules layer (see your `~/.claude/` config), or skip if you use a different editor. |
 
-Pre-commit hooks fire on `git commit`; the Claude Code hook fires on every Bash tool invocation in a Claude session. The Claude Code hook is only active when committing through Claude — `git commit` from a plain terminal does NOT trigger it. For terminal-agnostic enforcement, the rule must live at Tier 1.
+Pre-commit hooks fire on `git commit` in any terminal. If you use Claude Code as your editor, an optional global PreToolUse hook (`rule-check-bash.sh`) can provide an additional gate — it fires on Bash tool invocations inside Claude Code sessions. This hook is entirely optional and editor-specific: `git commit` from a plain terminal does NOT trigger it. For terminal-agnostic enforcement, the rule must live at Tier 1.
 
 ## Tier 3 — Prose conventions (this file, CLAUDE.md, GUIDELINES.md)
 
