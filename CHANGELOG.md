@@ -21,6 +21,33 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
 
 ### Fixed
 
+## [v1.6.0] - 2026-05-12
+
+### Added
+- `tooling/` directory at scaffold-repo root — opt-in editor / AI-assistant integrations layer. Framework-neutral umbrella; scaffold engine (`scripts/`, `template/`) does not depend on anything here.
+- `tooling/claude-code/new-project.md` — canonical in-repo copy of the Claude Code `/new-project` skill. Source of truth for the skill; users `cp` from here to `~/.claude/skills/new-project/SKILL.md`.
+- `tooling/README.md` — explains the opt-in nature of the integrations layer and how to add new ones.
+
+### Changed
+- Scaffold-repo `README.md` Quick Start now lists Options A + B only (Use template + `git clone`). Claude Code skill moved to a standalone "Claude Code users (optional)" callout below "What you get" — opt-in framing.
+- `README.md` "Claude Code users (optional)" section gains an explicit `mkdir + cp` install snippet pointing at `tooling/claude-code/new-project.md` with the v1.6.0 tag.
+
+### Removed
+- `tests/test_skill_flow.py` — obsolete drift guard. The skill was rewritten in v1.4.0 to delegate to `init-project.py` rather than duplicate its placeholder list; the `keys = [...]` block the test parsed no longer exists in SKILL.md. No drift surface remains for this test to guard.
+
+## Migrating from v1.5.0
+
+Existing skill users (i.e. those who installed `~/.claude/skills/new-project/SKILL.md` from a prior scaffold release): the v1.6.0 release ships the same SKILL.md content as v1.5.0 with two stale-prose fixes (frontmatter "4 questions" → "3 questions"; tail comment "v1.4.0" → "v1.5.0"). To pick up the fixes and the v1.6.0 scaffold pin:
+
+```bash
+git clone --depth 1 --branch v1.6.0 https://github.com/YuZh98/python-project-scaffold.git /tmp/scaffold
+cp /tmp/scaffold/tooling/claude-code/new-project.md ~/.claude/skills/new-project/SKILL.md
+# Edit SCAFFOLD_VERSION in the installed file from v1.5.0 to v1.6.0 if you want the skill
+# to clone the v1.6.0 scaffold release when invoked.
+```
+
+No breaking changes to the scaffold engine, template tree, or `init-project.py` interface in this release.
+
 ## [v1.2.0] - 2026-05-12
 
 ### Added
