@@ -14,6 +14,8 @@ import ast
 import re
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).parent.parent
 
 _SRC_DIR = REPO_ROOT / "src"
@@ -116,9 +118,8 @@ class TestNoSecretsInRepo:
             for file_path in sorted(REPO_ROOT.glob(pattern)):
                 violations.extend(self._scan_file(file_path))
 
-        assert not violations, (
-            "Secret pattern(s) found in repo:\n"
-            + "\n".join(f"  {v}" for v in violations)
+        assert not violations, "Secret pattern(s) found in repo:\n" + "\n".join(
+            f"  {v}" for v in violations
         )
 
 
@@ -222,9 +223,8 @@ class TestNoMutableDefaultArgs:
                                 f"Use None and instantiate in the body instead."
                             )
 
-        assert not violations, (
-            "Mutable-default violation(s):\n"
-            + "\n".join(f"  {v}" for v in violations)
+        assert not violations, "Mutable-default violation(s):\n" + "\n".join(
+            f"  {v}" for v in violations
         )
 
 
@@ -284,10 +284,13 @@ class TestImportContract:
                         else:
                             imported = ", ".join(alias.name for alias in node.names)
 
-                        for forbidden_importer, forbidden_imported in self._FORBIDDEN_PAIRS:
-                            if importer.startswith(forbidden_importer) and imported.startswith(
-                                forbidden_imported
-                            ):
+                        for (
+                            forbidden_importer,
+                            forbidden_imported,
+                        ) in self._FORBIDDEN_PAIRS:
+                            if importer.startswith(
+                                forbidden_importer
+                            ) and imported.startswith(forbidden_imported):
                                 rel = file_path.relative_to(REPO_ROOT)
                                 violations.append(
                                     f"{rel}:{node.lineno}: '{importer}' imports "
@@ -300,3 +303,71 @@ class TestImportContract:
             "Import-contract violation(s) — ADR-0001 boundary crossed:\n"
             + "\n".join(f"  {v}" for v in violations)
         )
+
+
+# ── Rule: Parameterised SQL only ─────────────────────────────────────────────
+
+
+class TestNoStringConcatenatedSQL:
+    """Pinning test for "parameterized SQL only" (GUIDELINES §5).
+
+    Scans every src/**/*.py for ``execute(`` or ``executemany(`` calls
+    where the SQL argument is built via f-string or ``+`` concatenation.
+    Both patterns leak user input into the SQL — a classic injection vector.
+
+    Vacuous-pass behaviour: when no DB library is imported anywhere under
+    src/, the test passes (no SQL means no violation). When a project
+    starts using sqlite3 / psycopg2 / asyncpg / SQLAlchemy and the test
+    finds string-concatenated SQL, it fires.
+    """
+
+    _DB_IMPORT_HINTS = (
+        "sqlite3",
+        "psycopg2",
+        "asyncpg",
+        "sqlalchemy",
+        "duckdb",
+        "mysql",
+    )
+
+    def test_no_string_concatenated_sql(self) -> None:
+        src = REPO_ROOT / "src"
+        if not src.is_dir():
+            pytest.skip("No src/ directory yet — bootstrapping scaffold.")
+        violations: list[str] = []
+        for py_file in src.rglob("*.py"):
+            try:
+                src_text = py_file.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, PermissionError):
+                continue
+            # Cheap pre-filter: only walk AST if file imports a DB library.
+            if not any(hint in src_text for hint in self._DB_IMPORT_HINTS):
+                continue
+            try:
+                tree = ast.parse(src_text)
+            except SyntaxError:
+                continue
+            for node in ast.walk(tree):
+                if not (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and node.func.attr in {"execute", "executemany"}
+                ):
+                    continue
+                if not node.args:
+                    continue
+                arg = node.args[0]
+                # Flag f-string or ``+`` concatenation as the SQL string.
+                bad = False
+                if isinstance(arg, ast.JoinedStr):  # f-string
+                    bad = True
+                elif isinstance(arg, ast.BinOp) and isinstance(arg.op, ast.Add):
+                    bad = True
+                if bad:
+                    rel = py_file.relative_to(REPO_ROOT)
+                    violations.append(
+                        f"{rel}:{node.lineno}: string-concatenated SQL detected; "
+                        f"use parameterised queries "
+                        f'(cursor.execute("SELECT ... WHERE x = ?", (val,))).'
+                    )
+        assert not violations, "\n".join(violations)
