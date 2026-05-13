@@ -52,19 +52,22 @@ A new project bootstrapped from this scaffold ships with, on day 0:
 
 ## Claude Code users (optional)
 
-If you use [Claude Code](https://claude.com/claude-code), install the `/new-project` skill to get a 3-prompt UX with automatic GitHub repo creation and branch protection on top of the scaffold's own bootstrap:
+If you use [Claude Code](https://claude.com/claude-code), install the `/new-project` skill to get a 4-question UX with automatic GitHub repo creation and branch protection on top of the scaffold's own bootstrap:
 
 ```bash
-git clone --depth 1 --branch v1.7.0 https://github.com/YuZh98/python-project-scaffold.git /tmp/scaffold
-mkdir -p ~/.claude/skills/new-project
-cp /tmp/scaffold/tooling/claude-code/new-project.md ~/.claude/skills/new-project/SKILL.md
+# Install latest release (bundles SKILL.md + helper scripts)
+gh release download --latest -R YuZh98/python-project-scaffold \
+  --pattern "new-project.skill" -D /tmp
+unzip -o /tmp/new-project.skill -d ~/.claude/skills/
 ```
+
+To pin to a specific version, replace `--latest` with `--tag v1.7.6`.
 
 Then invoke `/new-project` in any Claude Code session. The skill calls `scripts/init-project.py` under the hood — same engine as Options A and B.
 
 The skill is **opt-in**. The scaffold works identically without it.
 
-Source: [`tooling/claude-code/new-project.md`](tooling/claude-code/new-project.md). See [`tooling/README.md`](tooling/README.md) for the full integrations directory.
+Source: [`tooling/claude-code/`](tooling/claude-code/). The `.skill` file is attached to every [GitHub Release](https://github.com/YuZh98/python-project-scaffold/releases) automatically by CI.
 
 ## Placeholders
 
