@@ -258,6 +258,15 @@ def apply_directory_renames(target: Path, manifest: Manifest, values: dict[str, 
         to_path = target / actual_rel
 
         if from_path.exists() and from_path != to_path:
+            # Resolve to absolute paths to prevent path traversal via crafted placeholder values.
+            # Even though the manifest regex on <<PACKAGE_NAME>> forbids "/", an unvalidated values
+            # dict passed directly to apply_directory_renames could bypass main()'s validation gate.
+            target_abs = target.resolve()
+            to_abs = to_path.resolve()
+            if not str(to_abs).startswith(str(target_abs) + "/") and to_abs != target_abs:
+                raise RuntimeError(
+                    f"Path-traversal blocked: rename target {to_abs} is outside {target_abs}"
+                )
             from_path.rename(to_path)
             print(f"  Renamed {from_rel} → {actual_rel}")
         elif not from_path.exists() and to_path.exists():

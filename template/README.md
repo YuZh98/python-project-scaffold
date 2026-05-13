@@ -17,7 +17,7 @@ make test
 
 ### Development
 
-Run `make lint` before committing. The repo enforces ruff, pyright (basic), and pinning tests (see `tests/test_rules.py`). Pre-commit hooks installed by `make install` block obvious mistakes (formatting drift, AI-attribution trailers, secrets, status literals).
+Run `make lint` before committing. The repo enforces ruff, pyright (basic), and pinning tests (see `tests/test_rules.py`). Pre-commit hooks installed by `make install` block obvious mistakes: ruff lint+autofix, trailing whitespace, missing EOF newline, malformed YAML/TOML, and merge-conflict markers.
 
 ## Documentation
 

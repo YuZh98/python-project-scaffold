@@ -137,7 +137,7 @@ Removed, Deprecated, Security. No free-form entries.
 
 | Decision | Enforced by |
 |----------|-------------|
-| D1 — src/ layout | `tests/test_scaffold.py` (smoke test verifies directory shape); editable-install step in `pyproject.toml` |
+| D1 — src/ layout | `tests/test_cohesion.py::TestSrcLayoutPresent` (structural pinning test); src/ layout declared in `pyproject.toml [tool.setuptools.packages.find]` |
 | D2 — pinning tests | GUIDELINES §8 convention + `tests/test_rules.py` itself (rules cannot land without a test) |
 | D3 — Conventional Commits | pre-commit hook (`conventional-pre-commit` or equivalent); CI branch-name lint |
 | D4 — Keep-a-Changelog | GUIDELINES §10 (every PR appends one line under `[Unreleased]` in `CHANGELOG.md`) |
