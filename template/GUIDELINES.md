@@ -1,7 +1,7 @@
 # Implementation Guidelines
 _Read at the start of every coding session. Scannable checklist, not a tutorial._
 
-**Version:** v0.1 | **Last updated:** <<YEAR>> | **Status:** draft
+**Version:** v0.1 | **Status:** draft
 
 ## 1. Environment
 - Python <<PYTHON_FLOOR>>+; venv at `.venv/`; activate before coding.

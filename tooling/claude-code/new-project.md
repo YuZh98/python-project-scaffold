@@ -4,10 +4,9 @@ description: >
   Bootstrap a new Python project from python-project-scaffold with full rule-guarding wired
   from commit 1: ruff + pyright basic + pytest + deprecation-strict + coverage 95% gate +
   pre-commit hooks + 5-rule pinning test starter + Keep-a-Changelog + ADR ledger.
-  Asks the user 3 questions (name, description, visibility) and delegates to
-  scripts/init-project.py which prompts for license + Python floor and applies
-  opinionated defaults for everything else (Python 3.11 floor, src/ layout, MIT
-  default, pyright basic, coverage 95%, author from git config).
+  Asks the user 3 questions (name, description, visibility) and applies silent defaults for
+  license (MIT) and Python floor (3.11); everything else (author, email, year, GitHub login,
+  ruff target) is auto-derived from git config and gh CLI.
   Use when user says "/new-project", "scaffold new project", "bootstrap new repo",
   "start a new python project", or invokes /new-project.
 ---
@@ -50,7 +49,7 @@ Use `AskUserQuestion` if available; otherwise prompt sequentially. The 3 questio
 2. **One-line description**. Example: "Tool for managing X."
 3. **Visibility**: `public` (default) or `private`.
 
-DO NOT ask for license or Python floor here — `init-project.py` will prompt for those when it runs in Step 5. The skill deliberately keeps its prompts minimal; let the scaffold own the rest.
+DO NOT ask for license or Python floor here — the skill uses silent defaults (MIT license, Python 3.11 floor) and passes them directly to `init-project.py` in Step 5. The skill deliberately keeps its prompts to 3.
 
 ### Step 3 — Show derived-values summary BEFORE clone
 
@@ -76,8 +75,9 @@ Pre-clone summary — please review
   Target dir        $TARGET
   GitHub repo       github.com/$ACTIVE_GH_LOGIN/$NAME
   Active gh account $ACTIVE_GH_LOGIN
+  License           MIT (default; edit LICENSE + pyproject.toml to change)
+  Python floor      3.11 (default; edit pyproject.toml to change)
 
-  Note: init-project.py will prompt for license + Python floor next.
 ─────────────────────────────────────────────
 
 Proceed? [Y/n]
@@ -89,28 +89,57 @@ If user types anything except `y`/`Y`/`yes`/Enter, abort cleanly without writing
 
 ```bash
 SCAFFOLD_TMP=$(mktemp -d)
-SCAFFOLD_VERSION="v1.6.0"
+SCAFFOLD_VERSION="v1.7.0"
 git clone --depth 1 --branch "$SCAFFOLD_VERSION" \
   https://github.com/YuZh98/python-project-scaffold.git "$SCAFFOLD_TMP"
 ```
 
 Bump `SCAFFOLD_VERSION` when adopting a new scaffold release; review the scaffold's `CHANGELOG.md` before bumping.
 
-### Step 5 — Delegate to init-project.py
+### Step 5 — Build values.json and delegate to init-project.py
 
 ```bash
+VALUES=$(mktemp -d)/values.json
+python3 - "$NAME" "$PROJECT_TITLE" "$PACKAGE_NAME" "$DESC" "$ACTIVE_GH_LOGIN" <<'PY' > "$VALUES"
+import json, subprocess, sys
+from datetime import date
+
+name, title, pkg, desc, gh_login = sys.argv[1:6]
+
+def _git(key):
+    out = subprocess.run(["git", "config", "--global", key], capture_output=True, text=True)
+    return out.stdout.strip() if out.returncode == 0 else ""
+
+values = {
+  "<<PROJECT_NAME>>":    name,
+  "<<PROJECT_TITLE>>":   title,
+  "<<PACKAGE_NAME>>":    pkg,
+  "<<DESCRIPTION>>":     desc,
+  "<<AUTHOR_NAME>>":     _git("user.name"),
+  "<<AUTHOR_EMAIL>>":    _git("user.email"),
+  "<<YEAR>>":            str(date.today().year),
+  "<<LICENSE_ID>>":      "MIT",       # silent default; users wanting a different license can use init-project.py --in-place
+  "<<PYTHON_FLOOR>>":    "3.11",      # silent default
+  "<<GITHUB_USERNAME>>": gh_login,
+}
+print(json.dumps(values))
+PY
+
 python3 "$SCAFFOLD_TMP/scripts/init-project.py" \
   --target "$TARGET" \
+  --values "$VALUES" \
   --yes \
   ${DRY_RUN:+--dry-run}
+
+rm -rf "$(dirname "$VALUES")"
 ```
 
-`init-project.py` will:
-- Prompt the user for license (4 options shown) and Python floor (3.11 default) — the two prompts the skill deliberately omitted.
-- Auto-derive author name + email (from `git config`), GitHub username (from `gh api`), year, ruff target.
-- Show its own confirmation summary and gate (the `--yes` flag bypasses it because the skill already confirmed in Step 3).
-- Stage substituted tree to tmpdir, atomic swap, rollback on failure.
-- Init git in `$TARGET`, create venv, install deps, install pre-commit hooks (incl. commit-msg hook for Conventional Commits as of v1.5.0+), run pytest gate, first commit, `make install`.
+`init-project.py --target --values` skips interactive prompts entirely; the script:
+- Uses the pre-built values.json (all required fields supplied, including silent defaults for license=MIT and Python floor=3.11).
+- All 10 required placeholders (author, email, year, GitHub username, etc.) are pre-filled by the skill in Step 5; `_derive_silent` only auto-derives `<<RUFF_TARGET>>` from `<<PYTHON_FLOOR>>`.
+- Shows its own confirmation summary and gate (the `--yes` flag bypasses it because the skill already confirmed in Step 3).
+- Stages substituted tree to tmpdir, atomic swap, rollback on failure.
+- Inits git in `$TARGET`, creates venv, installs deps, installs pre-commit hooks (incl. commit-msg hook for Conventional Commits as of v1.5.0+), runs pytest gate, first commit, `make install`.
 
 If `init-project.py` exits non-zero, abort the skill and print its stderr. The local repo at `$TARGET` may be partially set up — see the rollback story in `init-project.py`.
 
@@ -174,7 +203,7 @@ echo ""
 - Do not auto-open a PR (commit-to-main is fine for a scaffold).
 - Do not push secrets or `.env` files (covered by the template `.gitignore`).
 - Do not add `Co-Authored-By: Claude` to any commit (the scaffold's first commit message is set by `init-project.py`; the skill never overrides it).
-- Do not re-implement license hints, project-name validation, package-name derivation, or values.json building — `init-project.py` owns all of these. If you find yourself doing one of those things, you're duplicating the engine; refactor instead.
+- Do not re-implement license hints, project-name validation, or package-name derivation — `init-project.py` owns those. The skill intentionally builds a partial values.json in Step 5 to supply known values upfront (name, title, package, description, silent license/floor defaults); this is an integration shim, not a reimplementation of the engine.
 - Do not skip pre-flight checks even if the user appears to be re-invoking after a previous failure.
 
 ## --dry-run
@@ -187,6 +216,6 @@ If the user invokes the skill with the equivalent of `--dry-run` (e.g. "/new-pro
 
 ## Updates and drift
 
-- This skill pins to scaffold release tag `v1.6.0` via `SCAFFOLD_VERSION`. To adopt a new scaffold release, bump the tag in Step 4 and review the scaffold's `CHANGELOG.md` between versions.
+- This skill pins to scaffold release tag `v1.7.0` via `SCAFFOLD_VERSION`. To adopt a new scaffold release, bump the tag in Step 4 and review the scaffold's `CHANGELOG.md` between versions.
 - The scaffold's interactive prompts and validators are the source of truth — the skill must not re-implement them. If `init-project.py` changes its prompt set, this skill's Step 5 description should be updated to match (but no behavioral change needed in the skill itself).
 - Compatibility contract: this skill expects `init-project.py --target` to be a stable interface. Breaking changes to that interface trigger a scaffold-major-version bump and require a skill update.

@@ -13,6 +13,7 @@ make install
 ```bash
 make test        # pytest + deprecation-strict pass
 make lint        # ruff linting
+make format      # apply ruff formatter to all .py files
 make typecheck   # pyright type checking
 make coverage    # pytest + coverage gate (95%)
 ```
@@ -36,6 +37,6 @@ make coverage    # pytest + coverage gate (95%)
 ## Commit Messages
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
-`feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`, `schema:`, `config:`
+`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `style:`, `perf:`, `build:`, `ci:`, `schema:`, `config:`, `review:`
 
 Subject ≤ 72 characters; imperative mood; body explains the WHY when not obvious.
