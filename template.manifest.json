@@ -9,8 +9,9 @@
     "<<AUTHOR_EMAIL>>":   {"required": true,  "validate": "^[^@]+@[^@]+\\.[^@]+$",         "description": "git config user.email"},
     "<<YEAR>>":           {"required": true,  "validate": "^[0-9]{4}$",                    "description": "current year"},
     "<<LICENSE_ID>>":     {"required": true,  "validate": "^(MIT|Apache-2.0|BSD-3-Clause|Unlicense)$", "description": "SPDX license identifier"},
-    "<<PYTHON_FLOOR>>":   {"required": true,  "validate": "^3\\.(11|12|13|14)$",            "description": "minimum Python version"},
-    "<<RUFF_TARGET>>":    {"required": false, "validate": "^py(311|312|313|314)$",           "description": "auto-derived from PYTHON_FLOOR (e.g. 3.11 -> py311)"}
+    "<<PYTHON_FLOOR>>":   {"required": true,  "validate": "^3\\.(1[1-9]|[2-9][0-9])$",       "description": "minimum Python version"},
+    "<<RUFF_TARGET>>":    {"required": false, "validate": "^py3(1[1-9]|[2-9][0-9])$",        "description": "auto-derived from PYTHON_FLOOR (e.g. 3.11 -> py311)"},
+    "<<GITHUB_USERNAME>>": {"required": true, "validate": "^[a-zA-Z0-9-]+$",                 "description": "GitHub login (from gh api user --jq .login)"}
   },
   "directory_renames": [
     {"from": "src/<<PACKAGE_NAME>>", "placeholder": "<<PACKAGE_NAME>>"}

@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    # Run weekly Monday 09:00 UTC to catch environmental drift (action updates,
+    # ubuntu-latest image rolls, upstream package breakage) even when no commits land.
+    - cron: '0 9 * * 1'
   workflow_dispatch:
 
 permissions:

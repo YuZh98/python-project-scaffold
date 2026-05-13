@@ -20,6 +20,29 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SCAFFOLD_REPO_ROOT="${REPO_ROOT}"
+
+# ---------------------------------------------------------------------------
+# Cleanup partial scaffold on signal (SIGINT, SIGTERM).
+# Only fires if scaffold did not complete successfully — last step unsets the trap.
+# ---------------------------------------------------------------------------
+cleanup_on_signal() {
+    local exit_code=$?
+    if [ -n "${TARGET:-}" ] && [ -d "${TARGET}" ]; then
+        # Only cleanup if the scaffolded repo has no commits yet — otherwise the user
+        # has work to preserve.
+        if ! git -C "${TARGET}" rev-parse HEAD >/dev/null 2>&1; then
+            echo "" >&2
+            echo "✗ Scaffold interrupted — removing partial directory ${TARGET}" >&2
+            rm -rf "${TARGET}"
+        else
+            echo "" >&2
+            echo "✗ Scaffold interrupted but ${TARGET} has commits — leaving in place" >&2
+        fi
+    fi
+    exit $exit_code
+}
+trap cleanup_on_signal INT TERM
 
 # ---------------------------------------------------------------------------
 # Step 0 — Parse args / env vars
@@ -100,7 +123,23 @@ git -C "${TARGET}" init --initial-branch=main
 echo "  git init complete."
 
 # ---------------------------------------------------------------------------
-# Step 5.5 — Assert python3 meets the floor
+# Step 5.5a — Write scaffold-version provenance file
+# Read version from the scaffold repo's manifest.
+# ---------------------------------------------------------------------------
+MANIFEST_VERSION=$(python3 -c "import json; print(json.load(open('${SCAFFOLD_REPO_ROOT}/template.manifest.json'))['version'])")
+SCAFFOLD_SHA=$(git -C "${SCAFFOLD_REPO_ROOT}" rev-parse HEAD 2>/dev/null || echo "unknown")
+cat > "${TARGET}/.scaffold-version" <<EOF
+# Provenance — DO NOT EDIT by hand.
+# This file records which scaffold version produced this project.
+# Future migration tooling reads it to identify pre-v(N) projects.
+manifest_version: ${MANIFEST_VERSION}
+scaffold_sha:     ${SCAFFOLD_SHA}
+scaffolded_at:    $(date -u +%Y-%m-%dT%H:%M:%SZ)
+EOF
+echo "  Wrote .scaffold-version (manifest_version=${MANIFEST_VERSION})"
+
+# ---------------------------------------------------------------------------
+# Step 5.5b — Assert python3 meets the floor
 # ---------------------------------------------------------------------------
 FLOOR="${PYTHON_FLOOR:-3.11}"
 python3 - "$FLOOR" <<'PY'
@@ -168,8 +207,8 @@ echo "  All tests passed."
 # ---------------------------------------------------------------------------
 echo "✓ [10/11] Creating initial commit…"
 
-git -C "${TARGET}" add .
-git -C "${TARGET}" commit -m "feat: initial scaffold from python-project-scaffold v1"
+git -C "${TARGET}" add . "${TARGET}/.scaffold-version"
+git -C "${TARGET}" commit -m "feat: initial scaffold from python-project-scaffold (manifest v${MANIFEST_VERSION})"
 echo "  Initial commit created."
 
 # ---------------------------------------------------------------------------
@@ -181,3 +220,5 @@ echo "  ✅ Scaffold complete: ${TARGET}"
 echo "  Relative path       : $(realpath --relative-to="$(pwd)" "${TARGET}" 2>/dev/null || echo "${TARGET}")"
 echo ""
 echo "  Next: write \`docs/adr/ADR-0001-import-contract.md\`."
+
+trap - INT TERM EXIT
