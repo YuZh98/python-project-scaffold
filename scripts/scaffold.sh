@@ -177,6 +177,11 @@ fi
 
 echo "  Dependencies installed."
 
+# Editable install of the project's own package — needed so tests/
+# can `from <package> import ...` against src/-layout source.
+"${TARGET}/.venv/bin/pip" install --quiet -e "${TARGET}"
+echo "  Editable install (.) complete."
+
 # ---------------------------------------------------------------------------
 # Step 8 — Install pre-commit hooks
 # ---------------------------------------------------------------------------

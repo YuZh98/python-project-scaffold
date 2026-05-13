@@ -4,6 +4,12 @@ A Python project scaffold with mature rule-guarding wired from commit 1.
 
 [GitHub template repo](https://github.com/YuZh98/python-project-scaffold).
 
+## Who is this for
+
+**Beginners** picking up software engineering practices on a real project. The scaffold ships every convention the discipline expects (tests, type hints, CHANGELOG, ADRs) wired up from commit 1, so you learn by editing a working example rather than configuring from scratch. Pair this with [`docs/concepts.md`](template/docs/concepts.md) (glossary) and [`docs/enforcement-model.md`](template/docs/enforcement-model.md) (architecture) inside any scaffolded project.
+
+**Experienced devs** starting a new project. Skip ~30 minutes of repetitive setup. Pin your skill or manual clone to a release tag (`v1.2.0`+), customize the 4 prompts, get a green-CI repo ready for the first feature commit. The opinionated defaults (Python 3.11+, src/ layout, ruff + pyright basic, pytest, pre-commit, 95% coverage) are designed to be a sensible baseline you rarely need to touch.
+
 ## What you get
 
 A new project bootstrapped from this scaffold ships with, on day 0:
