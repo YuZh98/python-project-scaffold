@@ -1,4 +1,4 @@
-.PHONY: install test lint clean
+.PHONY: install test lint typecheck format coverage clean
 
 install:
 	python -m venv .venv
@@ -11,7 +11,16 @@ test:
 
 lint:
 	. .venv/bin/activate && ruff check .
+
+typecheck:
 	. .venv/bin/activate && pyright .
+
+format:
+	. .venv/bin/activate && ruff format .
+
+coverage:
+	. .venv/bin/activate && pytest --cov=src --cov-report=term-missing -q
+	. .venv/bin/activate && coverage report --fail-under=95
 
 clean:
 	rm -rf .venv .pytest_cache .ruff_cache .coverage htmlcov __pycache__
