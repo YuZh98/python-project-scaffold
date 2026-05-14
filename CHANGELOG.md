@@ -15,6 +15,31 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
   - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
 -->
 
+## [v1.7.8] - 2026-05-14
+
+### Added
+- Skill Step 1: `make` pre-flight check with OS-specific install hint. (bcd58c4)
+- Skill Step 2: visibility question now has defined re-prompt message. (bcd58c4)
+- Skill: four concrete examples — name re-prompt, license re-prompt, filled-in Step 3 summary, Step 7 completion output. (bcd58c4)
+
+### Changed
+- Skill Step 3 summary: Python floor now labelled `3.11 (fixed default)` to make the constraint explicit. (bcd58c4)
+- Skill Step 5: `echo` confirmation added after non-MIT license amend so the user sees it happened. (bcd58c4)
+- Skill `--dry-run` section: timing clarified — set `DRY_RUN=1` at invocation recognition, not ambiguously "before Step 5". (bcd58c4)
+- Skill "Do not" section: two stale `scaffold.sh` references corrected to `init-project.py --target`. (bcd58c4)
+
+## [v1.7.7] - 2026-05-14
+
+### Fixed
+- Skill Step 5: `write_license.py` sourced via fallback — bundled `~/.claude/skills/new-project/scripts/` first (current text), then `$SCAFFOLD_TMP` if absent (SKILL.md-only installs). Resolves install-path assumption and circular-bootstrap issue. (#18)
+- Skill Step 5: `cd "$TARGET"` replaced with `git -C "$TARGET"` in license-amend block; `cd` does not persist across Claude Code `Bash` tool calls. (#18)
+- Skill Step 5: explicit `[[ -n "${DRY_RUN:-}" ]] && exit 0` shell gate added after `init-project.py`; previously relied on prose to skip Steps 6–7. (#18)
+- Skill Step 3: `$TARGET` pre-existence check added; previously `init-project.py` would receive an existing directory with undefined behaviour. (#18)
+- `tooling/claude-code/scripts/write_license.py`: Apache-2.0 text replaced with full canonical SPDX verbatim; prior text was a condensed paraphrase. (#18)
+
+### Changed
+- Skill Step 3: `SCAFFOLD_VERSION` bumped from stale `v1.7.4` to `v1.7.6`. (#18)
+
 ## [v1.7.6] - 2026-05-13
 
 ### Added
