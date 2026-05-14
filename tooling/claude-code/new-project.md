@@ -133,7 +133,9 @@ fi
 
 # Scaffold template has MIT text; overwrite and amend first commit for non-MIT choices.
 if [[ "$LICENSE_ID" != "MIT" ]]; then
-  python3 "$SCAFFOLD_TMP/tooling/claude-code/scripts/write_license.py" \
+  WRITE_LICENSE="$HOME/.claude/skills/new-project/scripts/write_license.py"
+  [[ -f "$WRITE_LICENSE" ]] || WRITE_LICENSE="$SCAFFOLD_TMP/tooling/claude-code/scripts/write_license.py"
+  python3 "$WRITE_LICENSE" \
     "$LICENSE_ID" "$(date +%Y)" "$(git config --global user.name)" \
     > "$TARGET/LICENSE"
   git -C "$TARGET" add LICENSE && git -C "$TARGET" commit --amend --no-edit
