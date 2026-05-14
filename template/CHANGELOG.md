@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--
 Keep-a-Changelog conventions (see GUIDELINES.md §10):
+  - Lead each versioned section with a one-sentence summary of what the release is about,
+    before any ### subsections. Enforced by test_cohesion.py::TestChangelogFormat.
   - One change → one bullet, imperative mood (e.g. "Add foo").
   - Six legal section headings, in this order — omit empty ones before releasing:
     Added · Changed · Fixed · Removed · Deprecated · Security.

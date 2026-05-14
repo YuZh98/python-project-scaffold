@@ -8,6 +8,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · SemVer.
 
 <!--
 Keep-a-Changelog conventions (see GUIDELINES.md §10):
+  - Lead each versioned section with a one-sentence summary of what the release is about,
+    before any ### subsections. Enforced by template/tests/test_cohesion.py::TestChangelogFormat.
   - One change → one bullet, imperative mood (e.g. "Add foo").
   - Six legal section headings, in this order — omit empty ones before releasing:
     Added · Changed · Fixed · Removed · Deprecated · Security.
