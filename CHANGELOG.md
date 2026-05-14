@@ -17,217 +17,162 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
 
 ## [v1.7.8] - 2026-05-14
 
+Better experience for first-time users. The skill now shows concrete examples of what each step looks like, explains what `make test` does and why, and warns that Dependabot PRs on a new repo are expected — not failures. Pre-flight now catches a missing `make` before anything runs.
+
 ### Added
-- Skill Step 1: `make` pre-flight check with OS-specific install hint. (bcd58c4)
-- Skill Step 2: visibility question now has defined re-prompt message. (bcd58c4)
-- Skill: four concrete examples — name re-prompt, license re-prompt, filled-in Step 3 summary, Step 7 completion output. (bcd58c4)
+- Pre-flight check for `make`; missing installation now surfaces with an OS-specific hint before any work begins. (bcd58c4)
+- Four examples in the skill showing what the flow actually looks like: name re-prompt, license re-prompt, filled-in pre-clone summary, and completion output. (bcd58c4)
 
 ### Changed
-- Skill Step 3 summary: Python floor now labelled `3.11 (fixed default)` to make the constraint explicit. (bcd58c4)
-- Skill Step 5: `echo` confirmation added after non-MIT license amend so the user sees it happened. (bcd58c4)
-- Skill `--dry-run` section: timing clarified — set `DRY_RUN=1` at invocation recognition, not ambiguously "before Step 5". (bcd58c4)
-- Skill "Do not" section: two stale `scaffold.sh` references corrected to `init-project.py --target`. (bcd58c4)
+- Completion message expanded: explains what `make test` runs, notes Dependabot PRs are expected, and links `docs/concepts.md` for users new to the scaffold. (bcd58c4)
+- Visibility and license questions both now have defined re-prompt messages on invalid input. (bcd58c4)
+- Python floor labelled as a fixed default in the summary so users know it cannot be changed interactively. (bcd58c4)
 
 ## [v1.7.7] - 2026-05-14
 
-### Fixed
-- Skill Step 5: `write_license.py` sourced via fallback — bundled `~/.claude/skills/new-project/scripts/` first (current text), then `$SCAFFOLD_TMP` if absent (SKILL.md-only installs). Resolves install-path assumption and circular-bootstrap issue. (#18)
-- Skill Step 5: `cd "$TARGET"` replaced with `git -C "$TARGET"` in license-amend block; `cd` does not persist across Claude Code `Bash` tool calls. (#18)
-- Skill Step 5: explicit `[[ -n "${DRY_RUN:-}" ]] && exit 0` shell gate added after `init-project.py`; previously relied on prose to skip Steps 6–7. (#18)
-- Skill Step 3: `$TARGET` pre-existence check added; previously `init-project.py` would receive an existing directory with undefined behaviour. (#18)
-- `tooling/claude-code/scripts/write_license.py`: Apache-2.0 text replaced with full canonical SPDX verbatim; prior text was a condensed paraphrase. (#18)
+Correctness fixes found by independent multi-agent audit. The most impactful: non-MIT license files were being generated with incorrect text (a condensed paraphrase of Apache-2.0 instead of the full SPDX text), and several shell-level guards that the skill described in prose weren't actually enforced.
 
-### Changed
-- Skill Step 3: `SCAFFOLD_VERSION` bumped from stale `v1.7.4` to `v1.7.6`. (#18)
+### Fixed
+- Apache-2.0 license text was a condensed paraphrase; replaced with the full canonical SPDX verbatim. (#18)
+- Non-MIT license rewrite used `cd` to change directories, which doesn't persist across tool calls; now uses `git -C` to operate without changing cwd. (#18)
+- Dry-run relied on Claude reading instructions to skip GitHub steps; now an explicit shell gate exits before any network operation. (#18)
+- Bootstrapping into an existing directory produced undefined behaviour; skill now aborts with a clear message if the target path already exists. (#18)
+- License script was sourced from a hardcoded install path, breaking for users who copied only SKILL.md; now tries the bundled path first and falls back to the cloned scaffold. (#18)
 
 ## [v1.7.6] - 2026-05-13
 
+The skill can now be installed with a single command. CI automatically builds a `.skill` zip file and attaches it to every GitHub Release on tag push — no manual packaging step needed.
+
 ### Added
-- `.github/workflows/release-skill.yml` — CI that builds and attaches `new-project.skill` to every release tag automatically. (#15)
-- `tooling/claude-code/scripts/package.sh` — build script that zips `new-project.md` + `scripts/write_license.py` into a distributable `.skill` archive. (#15)
+- CI workflow that builds and uploads `new-project.skill` to GitHub Releases on every version tag. (#15)
 
 ### Changed
-- `README.md`: Claude Code install section updated to use `gh release download` one-liner; version pin updated to v1.7.6. (#15)
+- README install instructions updated to use `gh release download --latest`. (#15)
 
 ## [v1.7.5] - 2026-05-13
 
+Skill cut from 452 to 212 lines. License texts moved to a bundled helper script that loads only when needed; several redundant sections removed.
+
 ### Changed
-- `tooling/claude-code/new-project.md` (skill): condensed from 452 to 212 lines — license texts extracted to bundled `scripts/write_license.py`, dead sections removed, SCAFFOLD_VERSION bumped to v1.7.4. (#14)
+- Skill condensed 53%; license texts extracted to `scripts/write_license.py`. (#14)
 
 ## [v1.7.4] - 2026-05-13
 
+Added license selection to the setup flow. New repos now default to private. Non-MIT licenses are written into the project with the correct full SPDX text from the start.
+
 ### Added
-- Skill Step 2: license question (MIT/Apache-2.0/BSD-3-Clause/Unlicense, default MIT); non-MIT choices rewrite `$TARGET/LICENSE` with correct SPDX text and amend the first commit. (#13)
-- Skill: two examples added (happy path + name-validation re-prompt). (#13)
+- License question in setup flow: MIT (default), Apache-2.0, BSD-3-Clause, or Unlicense. Non-MIT choices rewrite `LICENSE` and amend the first commit. (#13)
 
 ### Changed
-- Skill Step 2: visibility default changed from `public` to `private`. (#13)
-- Skill Step 3: `SCAFFOLD_VERSION` moved to Step 3 so summary table can reference it; Author, Email, Ruff target rows added to pre-clone summary. (#13)
+- Visibility default changed from `public` to `private`. (#13)
 
 ## [v1.7.3] - 2026-05-13
 
+Skill triggering improved. Claude now recognises natural variants like "create a new Python project" or "spin up a repo" without requiring the exact `/new-project` invocation.
+
 ### Changed
-- `tooling/claude-code/new-project.md` (skill): description rewritten with action-verb-first phrasing — adds "create", "initialize", "spin up" trigger variants; clearer skip conditions. (#12)
+- Skill description rewritten with broader trigger phrases and clearer skip conditions. (#12)
 
 ## [v1.7.2] - 2026-05-13
 
-### Fixed
-- `scripts/init-project.py`: `--dry-run` flag silently ignored in `--target` mode; `_mode_target` now prints substituted values and exits without writing files or creating git history. (#11)
-- `tooling/claude-code/new-project.md` (skill): pre-flight git config checks now verify non-empty values, not just key existence — empty `user.name`/`user.email` no longer pass silently. (#11)
-- Skill Step 6: `git push` failure after successful `gh repo create` now prints targeted recovery instructions. (#11)
-- Skill Step 7: `$SCAFFOLD_TMP` was leaked on early-exit paths (no trap); now cleaned via `trap … EXIT` set in Step 4. (#11)
-- Skill Step 6 manual-recovery: used `git remote set-url` (fails if origin not yet set); corrected to `git remote add`. (#11)
+Fixed three silent failures found during the first real-world use of the skill. Dry-run wrote files instead of previewing. Push failures left the user stranded. Pre-flight silently accepted empty git identity.
 
-### Changed
-- Skill Step 3 pre-clone summary now shows `Author`, `Email`, `Ruff target` (derived from Python floor), and `$SCAFFOLD_VERSION` resolved at runtime. (#11)
-- Skill: `SCAFFOLD_VERSION` constant moved from Step 4 to Step 3 so it can be referenced in the pre-clone summary. (#11)
-- Skill: Step 5 description corrected — `substitute.py` (not `_derive_silent`) auto-derives `<<RUFF_TARGET>>` in `--target --values` mode; `scaffold.sh` (not `make install`) runs the setup phases. (#11)
-- Skill: `--dry-run` section updated to document that Step 4 clone still runs (network required) and that `init-project.py` phase output should be surfaced to the user. (#11)
-- Skill pre-flight: added `python3` availability check; `gh auth` failure message now mentions required `repo` scope. (#11)
-- Skill `--dry-run` trigger list expanded to include natural variants: "show me what would happen", "simulate it", "preview only". (#11)
-- Skill "What NOT to do": added guards against adding commits between Steps 5–7, re-running `make install`, and modifying `$SCAFFOLD_TMP`. (#11)
+### Fixed
+- `--dry-run` flag was silently ignored when bootstrapping to a target directory; it now prints a preview and exits without touching disk. (#11)
+- Push failure after successful repo creation now prints copy-paste recovery commands. (#11)
+- Pre-flight accepted empty `user.name` / `user.email` values; now verifies they are non-empty. (#11)
+- Temp directory was leaked on early exit; cleaned up via trap on all exit paths. (#11)
 
 ## [v1.7.1] - 2026-05-13
 
-### Fixed
-- `template/src/<<PACKAGE_NAME>>/__init__.py` single-line docstring overflows ruff E501 for non-trivial descriptions; changed to multi-line format. (#10)
-- Skill Step 6: `gh repo create --push` defaults to SSH, failing for users without SSH keys configured; decoupled create and push, now pushes via HTTPS explicitly. (#10)
+Fixed three bugs found in the first live bootstrap (`lobster-imbalance`). All three were silent: ruff failed at first commit, SSH keys weren't set up so push failed, and bootstrap failure left no recovery path.
 
-### Changed
-- Skill Step 3 pre-clone summary table now shows the pinned scaffold version. (#10)
-- Skill Step 5 error handler now includes a recovery path (delete and re-invoke, or complete manually with `make install`). (#10)
-- `tests/test_scaffold.py` SAMPLE_VALUES description lengthened to realistic ~65 chars — ensures CI catches E501-class issues in the template. (#10)
+### Fixed
+- `__init__.py` docstring overflowed ruff's line-length limit with realistic project descriptions. (#10)
+- GitHub push defaulted to SSH and failed for users without SSH keys; now always pushes via HTTPS. (#10)
+- Bootstrap failure left no instructions; skill now prints a recovery path. (#10)
 
 ## [v1.7.0] - 2026-05-13
 
+Eliminated the double-prompt bug where the skill asked for project details and then `init-project.py` asked for them again. Added Conventional Commits enforcement and OSS hygiene files to the template.
+
 ### Fixed
-- `scripts/scaffold.sh`: `<<PYTHON_FLOOR>>` read from values.json for floor assertion; missing parse caused assertion to silently pass with empty value. (#9)
-- `scripts/scaffold.sh`: `GIT_AUTHOR_NAME`/`GIT_AUTHOR_EMAIL`/`GIT_COMMITTER_*` env vars now exported before the first commit; bare CI runners with no global git identity no longer fail with exit 128. (#9)
+- Skill now passes all values via `--values` in one shot; `init-project.py` no longer re-prompts. (#9)
 
 ### Added
-- `tooling/claude-code/new-project.md`: skill now builds a full `values.json` and passes `--values` to `init-project.py --target`; eliminated double-prompt where script re-asked all fields despite `--yes`. (#9)
-- `template/.pre-commit-config.yaml`: Conventional Commits 13-type canonical list enforced via `conventional-pre-commit` hook on commit-msg stage. (#9)
-- `SECURITY.md`, `CONTRIBUTING.md`, `.github/pull_request_template.md` added for OSS hygiene. (#9)
-
-### Changed
-- `CHANGELOG.md`: backfilled entries for v1.3.0, v1.4.0, v1.5.0 which were shipped without changelog entries. (#9)
+- Conventional Commits hook on commit-msg stage in template. (#9)
+- `SECURITY.md`, `CONTRIBUTING.md`, and PR template added to scaffold repo for OSS hygiene. (#9)
 
 ## [v1.6.0] - 2026-05-12
 
-### Added
-- `tooling/` directory at scaffold-repo root — opt-in editor / AI-assistant integrations layer. Framework-neutral umbrella; scaffold engine (`scripts/`, `template/`) does not depend on anything here.
-- `tooling/claude-code/new-project.md` — canonical in-repo copy of the Claude Code `/new-project` skill. Source of truth for the skill; users `cp` from here to `~/.claude/skills/new-project/SKILL.md`.
-- `tooling/README.md` — explains the opt-in nature of the integrations layer and how to add new ones.
+Skill moved into the scaffold repo and versioned alongside the engine. Previously distributed as a standalone file with no connection to a specific scaffold release.
 
-### Changed
-- Scaffold-repo `README.md` Quick Start now lists Options A + B only (Use template + `git clone`). Claude Code skill moved to a standalone "Claude Code users (optional)" callout below "What you get" — opt-in framing.
-- `README.md` "Claude Code users (optional)" section gains an explicit `mkdir + cp` install snippet pointing at `tooling/claude-code/new-project.md` with the v1.6.0 tag.
+### Added
+- `tooling/claude-code/` directory with the skill as the canonical in-repo copy; users install by copying from a tagged release. (#8)
 
 ### Removed
-- `tests/test_skill_flow.py` — obsolete drift guard. The skill was rewritten in v1.4.0 to delegate to `init-project.py` rather than duplicate its placeholder list; the `keys = [...]` block the test parsed no longer exists in SKILL.md. No drift surface remains for this test to guard.
-
-### Migration
-
-Existing skill users (i.e. those who installed `~/.claude/skills/new-project/SKILL.md` from a prior scaffold release): the v1.6.0 release ships the same SKILL.md content as v1.5.0 with two stale-prose fixes (frontmatter "4 questions" → "3 questions"; tail comment "v1.4.0" → "v1.5.0"). To pick up the fixes and the v1.6.0 scaffold pin:
-
-```bash
-git clone --depth 1 --branch v1.6.0 https://github.com/YuZh98/python-project-scaffold.git /tmp/scaffold
-cp /tmp/scaffold/tooling/claude-code/new-project.md ~/.claude/skills/new-project/SKILL.md
-# Edit SCAFFOLD_VERSION in the installed file from v1.5.0 to v1.6.0 if you want the skill
-# to clone the v1.6.0 scaffold release when invoked.
-```
-
-No breaking changes to the scaffold engine, template tree, or `init-project.py` interface in this release.
+- `tests/test_skill_flow.py` — obsolete test that parsed a key list that no longer exists in the skill after v1.4.0. (#8)
 
 ## [v1.5.0] - 2026-05-12
 
+Added branch protection guidance, SQL injection enforcement, and Conventional Commits pre-commit hook to the template.
+
 ### Added
-- `template/docs/setup-branch-protection.md`: 57-line how-to covering both `gh` CLI and GitHub UI paths, verification command, and three gotchas; cross-links to `template/docs/enforcement-model.md`. (#7)
-- `template/tests/test_rules.py::TestNoStringConcatenatedSQL`: AST scan of `src/**/*.py` for `execute()`/`executemany()` calls whose SQL argument is built via f-string or `+` concatenation; vacuous-pass when no DB library is imported. Promotes GUIDELINES §5 "parameterised SQL only" from prose to Tier 1. (#7)
+- `docs/setup-branch-protection.md` in template: how-to for enabling branch protection via CLI and UI. (#7)
+- AST scan that catches string-concatenated SQL in `execute()` calls — promotes parameterised-SQL rule to a failing test. (#7)
 
 ### Changed
-- `template/.pre-commit-config.yaml`: add `default_install_hook_types: [pre-commit, commit-msg]` and `conventional-pre-commit` v3.6.0 hook on the `commit-msg` stage. Conventional Commits + ≤72 char subject now enforced mechanically (promoted from Tier 3 prose to Tier 2 pre-commit). (#7)
-- `template/.github/pull_request_template.md`: add ADR-required checklist row prompting documentation for hard-to-reverse architectural decisions. (#7)
-- `template/tests/test_cohesion.py`: add `TestChangelogFormat` asserting exactly one `## [Unreleased]` heading and that all `###` subsection headings are one of the six legal Keep-a-Changelog tokens. Promotes GUIDELINES §10 from prose to Tier 1. (#7)
+- Conventional Commits + 72-char subject now enforced by pre-commit hook, not just prose. (#7)
 
 ### Fixed
-- `template/README.md`: replace `<<AUTHOR_NAME>>` with `<<GITHUB_USERNAME>>` in both GitHub URL contexts — previous URLs included spaces from the user's display name, producing 404s and broken clone commands in every scaffolded project. (#7)
-- `template/src/<<PACKAGE_NAME>>/__init__.py`: change docstring separator from `— X.` (em-dash + literal period) to `: X` (colon, no trailing punctuation) to avoid double-period when `<<DESCRIPTION>>` ends with `.`. (#7)
-- `scripts/init-project.py` `_prompt()`: catch `EOFError` and abort cleanly with a message pointing at `--values <json>`. Non-TTY pipes (CI/scripted) no longer crash with an uncaught traceback. (#7)
-- `scripts/init-project.py` `_derive_silent()`: every silent fallback (AUTHOR_NAME, AUTHOR_EMAIL, GITHUB_USERNAME) now prints an `ℹ` notice naming the resolved value and its source (git config / gh CLI). (#7)
+- README URLs in the template used the author's display name instead of GitHub username, producing 404s. (#7)
 
 ## [v1.4.0] - 2026-05-12
 
-### Added
-- `scripts/init-project.py`: Python 3.11+ stdlib bootstrap CLI with tmpdir staging, atomic swap, and in-memory rollback on failure. Supports `--in-place` (default) and `--target <dir>` modes. (#6)
-- Flags: `--values <json>` (non-interactive), `--dry-run`, `--keep-history`, `--reset-history`, `--no-install`, `--yes`. (#6)
-- `tests/test_init_project.py`: smoke test for `--in-place` mode using `shutil.copytree` fork into tmpdir; asserts no stray placeholders, scaffold-only files removed, template files at root, and first commit present. (#6)
-- `examples/values.example.json`: pre-filled placeholder values template for non-interactive bootstrap. (#6)
-- `examples/README.md`: placeholder reference and derivation notes for direct-clone users. (#6)
+New Python bootstrap CLI replaces the shell-only approach. Supports atomic swap (stage to tmpdir, then rename), rollback on failure, and bootstrapping to a separate target directory without touching the scaffold checkout.
 
-### Changed
-- Scaffold-repo `README.md` Quick Start reframed to three paths: Option A (`Use this template` + `init-project.py`), Option B (`git clone` + `init-project.py --target`), Option C (Claude Code skill — optional convenience). Demotes the Claude skill from primary path to opt-in callout. (#6)
-- `template/CLAUDE.md`: gains "Optional file" header; marks the file as Claude Code-specific and safe to delete otherwise. (#6)
-- `template/docs/enforcement-model.md`: Tier 2 reframes the Claude Code `rule-check-bash.sh` hook as an optional editor-specific addition rather than a primary enforcement mechanism. (#6)
+### Added
+- `scripts/init-project.py`: interactive bootstrap with `--in-place` and `--target` modes, `--dry-run`, `--values`, `--keep-history`. (#6)
+- Smoke test for `--in-place` mode. (#6)
 
 ## [v1.3.0] - 2026-05-12
 
-### Added
-- `template/docs/concepts.md`: 10-entry glossary covering venv, src layout, type hints, ruff, pyright, pre-commit, pytest fixtures, pinning tests, Conventional Commits, ADR, and Keep-a-Changelog + coverage gate. One short paragraph and canonical link per entry. (#5)
-- `template/docs/enforcement-model.md`: four-tier rule-hierarchy reference (CI/tests → pre-commit → prose → memory) with worked example for CI failure diagnosis. (#5)
-- `template/src/<<PACKAGE_NAME>>/example.py`: deletable hello-world with `greet()` function and `Greeter` dataclass demonstrating type hints, docstrings, and dataclass usage. Paired deletion header references `template/tests/test_example.py`. (#5)
-- `template/tests/test_example.py`: `TestGreet` and `TestGreeter` covering 100% branch coverage so the 95% coverage gate stays green after scaffolding. (#5)
+Added learning docs and a deletable hello-world module so new projects start green at 100% coverage with something to read.
 
-### Changed
-- `template/README.md`: add callout linking `concepts.md` and `enforcement-model.md`; reorder Next Steps to lead with `make test` and end with "delete the example pair"; add collapsible `<details>` TDD walkthrough. (#5)
-- `scripts/scaffold.sh`: add `pip install -e .` after dependency install and before pre-commit install and pytest gate, enabling `from <pkg> import …` in tests without manual pythonpath configuration. (#5)
+### Added
+- `docs/concepts.md`: glossary for venv, src layout, type hints, ruff, pyright, pytest, and more. (#5)
+- `docs/enforcement-model.md`: four-tier rule hierarchy with worked example for CI failure diagnosis. (#5)
+- Deletable `example.py` + `test_example.py` pair so coverage gate passes from commit 1. (#5)
 
 ## [v1.2.0] - 2026-05-12
 
-### Added
-- `template/SECURITY.md`: vulnerability reporting policy; uses `<<AUTHOR_EMAIL>>` placeholder.
-- `template/CONTRIBUTING.md`: dev setup, check commands, commit conventions; uses project placeholders.
-- `template/.github/ISSUE_TEMPLATE/bug_report.md` and `feature_request.md`: GitHub issue templates.
-- `template/.github/pull_request_template.md`: PR checklist (test, lint, CHANGELOG, type-hints gate).
-- `template/Makefile`: `make format` (ruff format), `make typecheck` (pyright), `make coverage` (pytest + 95% gate).
+Template now ships with the OSS hygiene files a public project needs from day one.
 
-### Changed
-- `template/Makefile`: `make lint` now runs ruff only; `make typecheck` is a separate target (mirrors CI step separation).
-- `template/.pre-commit-config.yaml`: bump ruff pre-commit hook from v0.6.0 to v0.15.12.
+### Added
+- `SECURITY.md`, `CONTRIBUTING.md`, GitHub issue templates, PR template added to template tree. (#4)
+- `make format`, `make typecheck`, `make coverage` targets added to template Makefile. (#4)
 
 ## [v1.1.0] - 2026-05-12
 
-### Added
-- `<<GITHUB_USERNAME>>` placeholder (10th required). `template/pyproject.toml [project.urls]` now uses the GitHub login instead of `<<AUTHOR_NAME>>`. Manifest now 10 required + 1 auto-derived (was 9 + 1).
-- `.scaffold-version` provenance file written into every scaffolded repo at commit 1 (`manifest_version` + `scaffold_sha` + `scaffolded_at`).
-- SIGINT/SIGTERM cleanup trap in `scripts/scaffold.sh` — partial `$TARGET` is removed if interrupted before first commit; left in place if work exists.
-- Scaffold-repo root `README.md` (this repo's GitHub landing page previously showed only file listings).
-- Weekly scheduled CI run on scaffold repo (`cron: '0 9 * * 1'`) — catches environmental drift even when no commits land.
-- `template/docs/dev-notes/README.md` documenting the capture-pin-comment workflow.
-- `template/CLAUDE.md` four-layer rule-enforcement model section.
-- `template/CHANGELOG.md` inline Keep-a-Changelog conventions comment + empty `Added/Changed/Fixed` subsection scaffolds.
+Added GitHub username as a required project value. Each bootstrapped project now records a provenance file (scaffold version, commit SHA, timestamp) at commit 1.
 
-### Changed
-- `<<PYTHON_FLOOR>>` / `<<RUFF_TARGET>>` validate regex opened to 3.11–3.99 / py311–py3xx. No more annual edit when 3.15+ ships.
-- `template/requirements-dev.txt` adds upper-bound guards (`<2`, `<10`, `<8`, `<6`) so silent major-version bumps land as review PRs.
-- `scripts/scaffold.sh` commit message reads `MANIFEST_VERSION` from the manifest (no more hardcoded `v1`).
-- `~/.claude/skills/new-project/SKILL.md`: surface `ACTIVE_GH_LOGIN` + confirmation prompt before push; replace raw-regex error on project name with human-readable message; license options gain one-line parentheticals; pass `<<GITHUB_USERNAME>>` as 10th value.
+### Added
+- `<<GITHUB_USERNAME>>` as 10th required placeholder; used in `pyproject.toml` project URLs. (#3)
+- `.scaffold-version` provenance file written into every scaffolded project at commit 1. (#3)
+- Weekly scheduled CI run on the scaffold repo to catch environmental drift. (#3)
+
+### Fixed
+- Interrupted bootstrap now cleans up the partial target directory. (#3)
 
 ## [v1.0.0] - 2026-05-12
 
+Initial release. A 23-file template tree with placeholder substitution, a `scaffold.sh` orchestrator, 5 pinning tests, and self-test CI.
+
 ### Added
-- Initial stable release.
-- 23-file template tree (config, docs, src/, tests/) with placeholder-based substitution.
-- `scripts/scaffold.sh` orchestrator: copy → substitute → git init → venv → install → pre-commit → pytest gate → first commit.
-- `scripts/substitute.py` atomic placeholder substitution with manifest validation and path-traversal guard.
-- `template.manifest.json` declaring 10 placeholders (9 required + 1 auto-derived).
-- 5-rule pinning starter suite in `template/tests/test_rules.py`: no-print, no-secrets, type-hints-on-public-fns, no-mutable-default-args, import-contract placeholder.
-- `template/tests/test_cohesion.py::TestSrcLayoutPresent` structural pinning test.
-- Self-test CI (`.github/workflows/ci.yml`) running `tests/test_scaffold.py` end-to-end smoke test.
-- Drift guard test (`tests/test_skill_flow.py`) — parses SKILL.md and asserts manifest parity.
-- Worked-example ADR-0000 doubling as the template for ADR-0001.
-- `[build-system]` block in `template/pyproject.toml` enabling editable installs.
+- 23-file template tree with `scripts/scaffold.sh` orchestrator and `scripts/substitute.py` atomic engine.
+- 5 pinning tests: no print-debug, no secrets, type hints on public functions, no mutable defaults, import-contract placeholder.
+- Self-test CI running end-to-end scaffold smoke test on every push.
 
 ### Security
-- Branch protection on `main` requires 1 review + passing `smoke` CI before merge.
+- Branch protection on `main` requires 1 review + passing CI before merge.
 - GitHub Actions pinned to SHAs; Dependabot tracks weekly.
