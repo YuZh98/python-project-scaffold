@@ -43,10 +43,11 @@ Store answers as `NAME`, `DESC`, `VISIBILITY`, `LICENSE_ID`. Python floor is a s
 ### Step 3 — Summary + confirm
 
 ```bash
-SCAFFOLD_VERSION="v1.7.4"
+SCAFFOLD_VERSION="v1.7.6"
 PACKAGE_NAME=$(echo "$NAME" | tr '-' '_')
 PROJECT_TITLE=$(echo "$NAME" | tr '-' ' ' | python3 -c "import sys; print(sys.stdin.read().strip().title())")
 TARGET="$(pwd)/$NAME"
+[[ -d "$TARGET" ]] && { echo "Directory $TARGET already exists. Choose a different name or remove it first."; exit 1; }
 ```
 
 Print and confirm before writing anything:
@@ -125,12 +126,19 @@ python3 "$SCAFFOLD_TMP/scripts/init-project.py" \
 
 rm -rf "$(dirname "$VALUES")"
 
+if [[ -n "${DRY_RUN:-}" ]]; then
+  echo "[DRY-RUN] No files written, no GitHub repo created."
+  exit 0
+fi
+
 # Scaffold template has MIT text; overwrite and amend first commit for non-MIT choices.
 if [[ "$LICENSE_ID" != "MIT" ]]; then
-  python3 ~/.claude/skills/new-project/scripts/write_license.py \
+  WRITE_LICENSE="$HOME/.claude/skills/new-project/scripts/write_license.py"
+  [[ -f "$WRITE_LICENSE" ]] || WRITE_LICENSE="$SCAFFOLD_TMP/tooling/claude-code/scripts/write_license.py"
+  python3 "$WRITE_LICENSE" \
     "$LICENSE_ID" "$(date +%Y)" "$(git config --global user.name)" \
     > "$TARGET/LICENSE"
-  cd "$TARGET" && git add LICENSE && git commit --amend --no-edit
+  git -C "$TARGET" add LICENSE && git -C "$TARGET" commit --amend --no-edit
 fi
 ```
 
@@ -178,9 +186,17 @@ fi
 echo ""
 echo "✓ Scaffold complete"
 echo ""
-echo "  Local path:  $TARGET"
-echo "  Remote URL:  https://github.com/$ACTIVE_GH_LOGIN/$NAME"
-echo "  Next step:   cd $TARGET && make test"
+echo "  Local:   $TARGET"
+echo "  Remote:  https://github.com/$ACTIVE_GH_LOGIN/$NAME"
+echo ""
+echo "  1. cd $TARGET && make test"
+echo "     Runs ruff + pyright + pytest + coverage. All should pass."
+echo "     This is your green baseline — verify it before writing any code."
+echo ""
+echo "  2. Dependabot will open a few PRs shortly — this is expected."
+echo "     Grouped minor/patch updates: skim the diff, confirm CI green, merge."
+echo ""
+echo "  3. New to this scaffold? Read docs/concepts.md for a tour of what shipped."
 echo ""
 ```
 
