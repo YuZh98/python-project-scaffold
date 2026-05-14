@@ -21,6 +21,17 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
   - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
 -->
 
+## [v1.7.9] - 2026-05-14
+
+Every project bootstrapped from this scaffold now enforces the changelog summary-sentence convention at CI level. Also fixes a long-standing bug where the scaffold's own developer docs were silently copied into bootstrapped projects.
+
+### Added
+- `template/tests/test_cohesion.py`: each `## [vX.Y.Z]` section must have a summary paragraph before its first `###` subsection — fails CI with a named violation if omitted. (#20)
+- Template `CHANGELOG.md` comment block updated with poor/good bullet examples to make the expected style concrete. (#20)
+
+### Fixed
+- In-place bootstrap left `docs/superpowers/` (scaffold-internal test plans) inside the derived project; now removed alongside `tooling/` and `scripts/`. (3ada781)
+
 ## [v1.7.8] - 2026-05-14
 
 Better experience for first-time users. The skill now shows concrete examples of what each step looks like, explains what `make test` does and why, and warns that Dependabot PRs on a new repo are expected — not failures. Pre-flight now catches a missing `make` before anything runs.
