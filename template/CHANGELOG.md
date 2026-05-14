@@ -15,7 +15,7 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
     changed and why it matters. Skip file paths, step numbers, and implementation
     details. Imperative mood.
     Poor: "Step 5: replaced cd with git -C in the license-amend block."
-    Good:  "Fixed license rewrite silently failing when shell cwd doesn't persist."
+    Good: "Fixed license rewrite silently failing when shell cwd doesn't persist."
   - Six legal section headings, in this order — omit empty ones before releasing:
     Added · Changed · Fixed · Removed · Deprecated · Security.
   - Add the PR number or commit hash at the end of each entry.

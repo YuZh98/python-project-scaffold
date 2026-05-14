@@ -82,11 +82,14 @@ class TestChangelogFormat:
         stripped = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
 
         # Split on versioned section headers; result alternates [pre, header, body, ...]
-        parts = re.split(r"^(## \[v[\d.]+\][^\n]*)", stripped, flags=re.MULTILINE)
+        # [^\]]+ matches any version string including pre-release tags (v1.0.0-rc.1).
+        parts = re.split(r"^(## \[v[^\]]+\][^\n]*)", stripped, flags=re.MULTILINE)
         violations = []
         for i in range(1, len(parts), 2):
             header = parts[i].strip()
-            body = parts[i + 1] if i + 1 < len(parts) else ""
+            # re.split with a capture group always yields 2*N+1 parts for N matches,
+            # so i+1 is always a valid index when stepping by 2 from 1.
+            body = parts[i + 1]
             before_subsections = re.split(r"^###", body, maxsplit=1, flags=re.MULTILINE)[0]
             summary_lines = [ln for ln in before_subsections.splitlines() if ln.strip()]
             if not summary_lines:
