@@ -43,10 +43,11 @@ Store answers as `NAME`, `DESC`, `VISIBILITY`, `LICENSE_ID`. Python floor is a s
 ### Step 3 — Summary + confirm
 
 ```bash
-SCAFFOLD_VERSION="v1.7.4"
+SCAFFOLD_VERSION="v1.7.6"
 PACKAGE_NAME=$(echo "$NAME" | tr '-' '_')
 PROJECT_TITLE=$(echo "$NAME" | tr '-' ' ' | python3 -c "import sys; print(sys.stdin.read().strip().title())")
 TARGET="$(pwd)/$NAME"
+[[ -d "$TARGET" ]] && { echo "Directory $TARGET already exists. Choose a different name or remove it first."; exit 1; }
 ```
 
 Print and confirm before writing anything:
@@ -125,12 +126,17 @@ python3 "$SCAFFOLD_TMP/scripts/init-project.py" \
 
 rm -rf "$(dirname "$VALUES")"
 
+if [[ -n "${DRY_RUN:-}" ]]; then
+  echo "[DRY-RUN] No files written, no GitHub repo created."
+  exit 0
+fi
+
 # Scaffold template has MIT text; overwrite and amend first commit for non-MIT choices.
 if [[ "$LICENSE_ID" != "MIT" ]]; then
-  python3 ~/.claude/skills/new-project/scripts/write_license.py \
+  python3 "$SCAFFOLD_TMP/tooling/claude-code/scripts/write_license.py" \
     "$LICENSE_ID" "$(date +%Y)" "$(git config --global user.name)" \
     > "$TARGET/LICENSE"
-  cd "$TARGET" && git add LICENSE && git commit --amend --no-edit
+  git -C "$TARGET" add LICENSE && git -C "$TARGET" commit --amend --no-edit
 fi
 ```
 
