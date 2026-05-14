@@ -26,6 +26,7 @@ ACTIVE_GH_LOGIN=$(gh api user --jq .login)
 [[ -n "$(git config --global user.name 2>/dev/null)" ]] || { echo "Configure git first: git config --global user.name '<name>' && git config --global user.email '<email>'"; exit 1; }
 [[ -n "$(git config --global user.email 2>/dev/null)" ]] || { echo "Configure git first: git config --global user.email '<email>'"; exit 1; }
 python3 --version >/dev/null 2>&1 || { echo "python3 is required but not found. Install Python 3.11+ and retry."; exit 1; }
+make --version >/dev/null 2>&1 || { echo "make is required but not found. macOS: xcode-select --install  Linux: sudo apt install build-essential"; exit 1; }
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 && { echo "Refusing to run inside an existing git repo. cd to a parent directory and re-invoke."; exit 1; } || true
 ```
 
@@ -35,7 +36,7 @@ Use `AskUserQuestion` if available, otherwise prompt sequentially:
 
 1. **Name** — `lowercase-letters-digits-hyphens`, start+end alphanumeric. Re-prompt: "Project name must be lowercase letters/digits/hyphens, start+end with a letter or digit. Got: '<value>'. Try: my-cool-tool"
 2. **Description** — one line. Example: "Tool for managing X."
-3. **Visibility** — `private` (default) or `public`
+3. **Visibility** — `private` (default) or `public`. Re-prompt: "Visibility must be 'private' or 'public'. Got: '<value>'."
 4. **License** — `MIT` (default), `Apache-2.0`, `BSD-3-Clause`, or `Unlicense`. Re-prompt: "License must be one of: MIT, Apache-2.0, BSD-3-Clause, Unlicense. Got: '<value>'."
 
 Store answers as `NAME`, `DESC`, `VISIBILITY`, `LICENSE_ID`. Python floor is a silent default (3.11).
@@ -68,7 +69,7 @@ Pre-clone summary — please review
   Email             $(git config --global user.email)
   Scaffold version  $SCAFFOLD_VERSION
   License           $LICENSE_ID
-  Python floor      3.11
+  Python floor      3.11 (fixed default)
   Ruff target       py311
 
 ─────────────────────────────────────────────
@@ -139,6 +140,7 @@ if [[ "$LICENSE_ID" != "MIT" ]]; then
     "$LICENSE_ID" "$(date +%Y)" "$(git config --global user.name)" \
     > "$TARGET/LICENSE"
   git -C "$TARGET" add LICENSE && git -C "$TARGET" commit --amend --no-edit
+  echo "✓ LICENSE rewritten to $LICENSE_ID text (first commit amended)."
 fi
 ```
 
@@ -206,19 +208,21 @@ Branch protection failure is not fatal — the repo is usable.
 
 - Open `$EDITOR`, auto-open a PR, or add `Co-Authored-By: Claude` to any commit.
 - Re-implement validation or derivation — `init-project.py` owns that; this skill is an integration shim.
-- Add commits between Steps 5–7. `scaffold.sh` makes the only pre-push commit; the license amend in Step 5 is the sole exception.
-- Re-run `make install` — `scaffold.sh` already ran the full setup phase.
+- Add commits between Steps 5–7. `init-project.py --target` makes the only pre-push commit; the license amend in Step 5 is the sole exception.
+- Re-run `make install` — `init-project.py --target` already ran the full setup phase.
 - Modify `$SCAFFOLD_TMP`; it is read-only and trap-cleaned at exit.
 
 ## --dry-run
 
 Trigger phrases: `/new-project --dry-run`, "preview only", "show me what would happen", "simulate it".
 
-Set `DRY_RUN=1` before Step 5. `init-project.py` prints values/phases without writing files or git history. Skip Steps 6–7. Step 4 clone still runs (network required). Surface the phase output to the user.
+Recognise the trigger phrase at invocation. Set `DRY_RUN=1` immediately, then proceed through Steps 1–5 normally. The explicit shell gate at the end of Step 5 exits before Steps 6–7. Step 4 clone still runs (network required). Surface the phase output to the user.
 
 Print at end: `[DRY-RUN] No files written, no GitHub repo created.`
 
-## Example — name validation
+## Examples
+
+### Name validation
 
 User provides `My_Project` (invalid: uppercase, underscore) → skill re-prompts:
 ```
@@ -226,3 +230,59 @@ Project name must be lowercase letters/digits/hyphens, start+end with a letter o
 Got: 'My_Project'. Try: my-project
 ```
 User provides `my-project` → valid, continues to question 2.
+
+### License re-prompt
+
+User enters `GPL-3.0` at license question → skill re-prompts:
+```
+License must be one of: MIT, Apache-2.0, BSD-3-Clause, Unlicense. Got: 'GPL-3.0'.
+```
+User enters `Apache-2.0` → valid.
+
+### Happy-path Step 3 summary
+
+Inputs: name=`data-pipeline`, desc=`ETL framework for time-series data`, visibility=`private`, license=`MIT`:
+```
+─────────────────────────────────────────────
+Pre-clone summary — please review
+
+  Project name      data-pipeline
+  Project title     Data Pipeline
+  Package name      data_pipeline
+  Description       ETL framework for time-series data
+  Visibility        private
+  Target dir        /Users/alice/projects/data-pipeline
+  GitHub repo       github.com/alice/data-pipeline
+  Active gh account alice
+  Author            Alice Smith
+  Email             alice@example.com
+  Scaffold version  v1.7.6
+  License           MIT
+  Python floor      3.11 (fixed default)
+  Ruff target       py311
+
+─────────────────────────────────────────────
+
+Proceed? [Y/n]
+```
+
+### Step 7 completion output
+
+```
+✓ Branch protection enabled (no force-push, no deletion).
+  Add required status checks after first CI run: Settings → Branches → Edit main.
+
+✓ Scaffold complete
+
+  Local:   /Users/alice/projects/data-pipeline
+  Remote:  https://github.com/alice/data-pipeline
+
+  1. cd /Users/alice/projects/data-pipeline && make test
+     Runs ruff + pyright + pytest + coverage. All should pass.
+     This is your green baseline — verify it before writing any code.
+
+  2. Dependabot will open a few PRs shortly — this is expected.
+     Grouped minor/patch updates: skim the diff, confirm CI green, merge.
+
+  3. New to this scaffold? Read docs/concepts.md for a tour of what shipped.
+```
