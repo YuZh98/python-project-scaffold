@@ -221,11 +221,11 @@ unzip -l /tmp/new-project.skill
 |---|---|---|---|
 | T1 | Automated (partial) / User-only (full) | PASS (auto) | git check fires; full skill test pending |
 | T2 | User-only | — | |
-| T3 | User-only | — | |
+| T3 | User-only | PASS | 2026-05-13; re-prompt fired correctly |
 | T4 | User-only | — | |
 | T5 | User-only | — | |
 | T6 | User-only | — | |
-| T7 | User-only | — | |
+| T7 | User-only | PASS | 2026-05-13; Claude asked all 4 questions interactively |
 | T8 | User-only | — | |
 | T9 | User-only | PASS | lobster-imbalance, 2026-05-13 |
 | T10 | User-only | — | |
