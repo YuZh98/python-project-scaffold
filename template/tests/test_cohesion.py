@@ -33,8 +33,9 @@ class TestChangelogFormat:
 
     Enforces: [Unreleased] section present; subsection headings limited
     to the six legal Keep-a-Changelog tokens (Added/Changed/Fixed/
-    Removed/Deprecated/Security). Tokens inside HTML comments are
-    allowed — they're documentation.
+    Removed/Deprecated/Security); each versioned section leads with a
+    summary paragraph before its first subsection. Tokens inside HTML
+    comments are allowed — they're documentation.
     """
 
     LEGAL_HEADINGS = {"Added", "Changed", "Fixed", "Removed", "Deprecated", "Security"}
@@ -68,3 +69,36 @@ class TestChangelogFormat:
                     f"— legal: {sorted(self.LEGAL_HEADINGS)}"
                 )
         assert not violations, "\n".join(violations)
+
+    def test_versioned_sections_have_summary(self) -> None:
+        """Each ## [vX.Y.Z] section must have a summary paragraph before its first ###.
+
+        A bare list of bullets tells you what changed but not why it mattered.
+        One sentence of context makes the changelog readable top-down.
+        Vacuously passes when no versioned sections exist yet (fresh project).
+        """
+        changelog = REPO_ROOT / "CHANGELOG.md"
+        content = changelog.read_text(encoding="utf-8")
+        stripped = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
+
+        # Split on versioned section headers; result alternates [pre, header, body, ...]
+        # [^\]]+ matches any version string including pre-release tags (v1.0.0-rc.1).
+        parts = re.split(r"^(## \[v[^\]]+\][^\n]*)", stripped, flags=re.MULTILINE)
+        violations = []
+        for i in range(1, len(parts), 2):
+            header = parts[i].strip()
+            # re.split with a capture group always yields 2*N+1 parts for N matches,
+            # so i+1 is always a valid index when stepping by 2 from 1.
+            body = parts[i + 1]
+            before_subsections = re.split(r"^###", body, maxsplit=1, flags=re.MULTILINE)[0]
+            summary_lines = [ln for ln in before_subsections.splitlines() if ln.strip()]
+            if not summary_lines:
+                violations.append(
+                    f"  {header}: no summary paragraph before first ### subsection"
+                )
+
+        assert not violations, (
+            "Each versioned CHANGELOG section must open with a summary sentence "
+            "before any ### subsections (enforced by GUIDELINES §10):\n"
+            + "\n".join(violations)
+        )

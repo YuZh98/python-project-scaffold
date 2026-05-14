@@ -9,7 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--
 Keep-a-Changelog conventions (see GUIDELINES.md §10):
-  - One change → one bullet, imperative mood (e.g. "Add foo").
+  - Lead each versioned section with a one-sentence summary of what the release is about,
+    before any ### subsections. Enforced by test_cohesion.py::TestChangelogFormat.
+  - Group related changes into one bullet at the level of user impact — what
+    changed and why it matters. Skip file paths, step numbers, and implementation
+    details. Imperative mood.
+    Poor: "Step 5: replaced cd with git -C in the license-amend block."
+    Good: "Fixed license rewrite silently failing when shell cwd doesn't persist."
   - Six legal section headings, in this order — omit empty ones before releasing:
     Added · Changed · Fixed · Removed · Deprecated · Security.
   - Add the PR number or commit hash at the end of each entry.
