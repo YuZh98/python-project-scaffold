@@ -10,7 +10,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · SemVer.
 Keep-a-Changelog conventions (see GUIDELINES.md §10):
   - Lead each versioned section with a one-sentence summary of what the release is about,
     before any ### subsections. Enforced by template/tests/test_cohesion.py::TestChangelogFormat.
-  - One change → one bullet, imperative mood (e.g. "Add foo").
+  - Group related changes into one bullet at the level of user impact — what
+    changed and why it matters. Skip file paths, step numbers, and implementation
+    details. Imperative mood.
+    Poor: "Step 5: replaced cd with git -C in the license-amend block."
+    Good:  "Fixed license rewrite silently failing when shell cwd doesn't persist."
   - Six legal section headings, in this order — omit empty ones before releasing:
     Added · Changed · Fixed · Removed · Deprecated · Security.
   - Add the PR number or commit hash at the end of each entry.
