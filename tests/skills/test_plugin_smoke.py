@@ -22,7 +22,7 @@ class TestPluginSmoke(unittest.TestCase):
         # Claude Code's documented plugin layout. Locating it elsewhere causes
         # `/plugin install` to silently fail.
         data = json.loads((PLUGIN_ROOT / ".claude-plugin" / "plugin.json").read_text())
-        self.assertEqual(data["name"], "new-project")
+        self.assertEqual(data["name"], "python-project-scaffold")
         self.assertTrue(data["version"])
 
     def test_all_skills_have_skill_md(self) -> None:

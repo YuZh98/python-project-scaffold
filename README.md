@@ -89,11 +89,11 @@ A new project bootstrapped from this scaffold ships with, on day 0:
 
 ## Claude Code plugin
 
-If you use [Claude Code](https://claude.com/claude-code), install the new-project plugin to get a 4-question UX with automatic GitHub repo creation and branch protection on top of the scaffold's own bootstrap. The plugin also ships sibling skills for releases, changelog normalization, and pre-PR audits.
+If you use [Claude Code](https://claude.com/claude-code), install the `python-project-scaffold` plugin to get a 4-question UX (the `/new-project` skill) with automatic GitHub repo creation and branch protection on top of the scaffold's own bootstrap. The plugin also ships sibling skills for releases, changelog normalization, and pre-PR audits.
 
 ```bash
 /plugin marketplace add YuZh98/python-project-scaffold
-/plugin install new-project@python-project-scaffold
+/plugin install python-project-scaffold@python-project-scaffold
 ```
 
 See `plugins/new-project/README.md` for details.

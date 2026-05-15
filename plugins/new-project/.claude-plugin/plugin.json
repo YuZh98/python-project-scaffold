@@ -1,6 +1,6 @@
 {
-  "name": "new-project",
-  "version": "0.1.2",
+  "name": "python-project-scaffold",
+  "version": "0.2.0",
   "description": "Scaffold Python projects, normalize CHANGELOGs, automate releases, and run pre-PR audits.",
   "author": {
     "name": "YuZh98",

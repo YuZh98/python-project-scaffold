@@ -6,7 +6,7 @@
   },
   "plugins": [
     {
-      "name": "new-project",
+      "name": "python-project-scaffold",
       "source": "./plugins/new-project",
       "description": "Python project scaffolding toolkit: scaffold new repos, run release flows, normalize CHANGELOGs, and run pre-PR audits using a scaffold-aware framework."
     }

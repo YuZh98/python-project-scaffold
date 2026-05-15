@@ -1,4 +1,6 @@
-# new-project (Claude Code plugin)
+# python-project-scaffold (Claude Code plugin)
+
+Renamed from `new-project` in plugin v0.2.0; the slash command `/new-project` remains unchanged.
 
 Scaffold-aware Claude Code skills for Python project lifecycle:
 
@@ -13,6 +15,17 @@ Scaffold-aware Claude Code skills for Python project lifecycle:
 /plugin marketplace add YuZh98/python-project-scaffold
 /plugin install new-project@python-project-scaffold
 ```
+
+## Migration from `new-project@python-project-scaffold`
+
+If you have the plugin installed under its previous name:
+
+```bash
+claude plugin uninstall new-project@python-project-scaffold
+claude plugin install python-project-scaffold@python-project-scaffold
+```
+
+Skill triggers, bundled scripts, and behaviour are otherwise unchanged.
 
 ## Usage
 
