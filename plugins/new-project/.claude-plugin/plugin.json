@@ -1,0 +1,12 @@
+{
+  "name": "new-project",
+  "version": "0.1.0",
+  "description": "Scaffold Python projects, normalize CHANGELOGs, automate releases, and run pre-PR audits.",
+  "author": {
+    "name": "YuZh98",
+    "url": "https://github.com/YuZh98"
+  },
+  "homepage": "https://github.com/YuZh98/python-project-scaffold",
+  "license": "MIT",
+  "keywords": ["python", "scaffold", "changelog", "release", "audit"]
+}

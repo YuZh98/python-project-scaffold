@@ -15,11 +15,14 @@ Keep-a-Changelog conventions (see GUIDELINES.md §10):
     details. Imperative mood.
     Poor: "Step 5: replaced cd with git -C in the license-amend block."
     Good: "Fixed license rewrite silently failing when shell cwd doesn't persist."
-  - Six legal section headings, in this order — omit empty ones before releasing:
-    Added · Changed · Fixed · Removed · Deprecated · Security.
+  - Six legal section headings, in this order (Keep-a-Changelog 1.1.0 spec) — omit empty ones before releasing:
+    Added · Changed · Deprecated · Removed · Fixed · Security.
   - Add the PR number or commit hash at the end of each entry.
   - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
 -->
+
+### Added
+- Claude Code plugin (`plugins/new-project/`) packaging the scaffold's existing skill plus three sibling skills (release-helper, changelog-normalizer, audit-runner). Distributed via self-hosted marketplace at `.claude-plugin/marketplace.json`. See ADR 0001 for the decoupled-versioning rationale. (#1)
 
 ## [v1.7.9] - 2026-05-14
 
