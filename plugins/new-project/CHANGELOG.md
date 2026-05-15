@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the new-project plugin. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [Semantic Versioning](https://semver.org/).
+All notable changes to the python-project-scaffold plugin (formerly named `new-project` before v0.2.0). Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
@@ -15,6 +15,13 @@ All notable changes to the new-project plugin. Format: [Keep a Changelog](https:
 ### Fixed
 
 ### Security
+
+## [0.2.0] - 2026-05-15
+
+**BREAKING**: plugin renamed from `new-project` to `python-project-scaffold`. Skill triggers, bundled scripts, and observable behaviour are unchanged — only the plugin identifier moves, so existing installs need a one-time uninstall + reinstall (see plugin README for the two-command migration).
+
+### Changed
+- Plugin renamed from `new-project` to `python-project-scaffold` — slash command `/new-project` and skill directory unchanged, only the plugin-level identifier moves. (0dda28f)
 
 ## [0.1.2] - 2026-05-15
 
