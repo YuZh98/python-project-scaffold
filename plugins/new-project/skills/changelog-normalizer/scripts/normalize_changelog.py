@@ -147,6 +147,7 @@ class Version:
     """One ## version block."""
 
     header_line: str  # canonical "## [X.Y.Z] - YYYY-MM-DD" or "## [Unreleased]"
+    preamble: list[str] = field(default_factory=list)  # text/HTML comments between header and first ###
     sections: list[Section] = field(default_factory=list)
     raw_header_source_line: int = 0
 
@@ -233,6 +234,7 @@ def _parse_version_block(
     i = start + 1
     n = len(lines)
     current_section: Section | None = None
+    preamble_buf: list[str] = []  # lines between header and first ### subsection
 
     while i < n:
         line = lines[i]
@@ -244,6 +246,9 @@ def _parse_version_block(
         # Subheading?
         m = re.match(r"^###\s+(.+?)\s*$", line)
         if m:
+            # Commit any captured preamble before the first section appears.
+            if current_section is None and preamble_buf:
+                version.preamble = _trim_blank_edges(preamble_buf)
             raw_name = m.group(1).strip()
             canon = SUBHEADING_ALIASES.get(raw_name.lower())
             if canon is None:
@@ -269,10 +274,31 @@ def _parse_version_block(
             i += consumed
             continue
 
-        # Anything else (blank line, prose) — preserve into the section, or skip.
+        # Preamble capture: any non-section, non-entry line before the first
+        # ### subsection is treated as author-supplied content (summary
+        # paragraph, HTML comment block, etc.) and preserved verbatim. Inside
+        # a section, the same lines are skipped (no current Entry to attach
+        # them to).
+        if current_section is None:
+            preamble_buf.append(line)
         i += 1
 
+    # Loop ended without ever hitting a ### subsection.
+    if current_section is None and preamble_buf:
+        version.preamble = _trim_blank_edges(preamble_buf)
+
     return version, i - start
+
+
+def _trim_blank_edges(lines: list[str]) -> list[str]:
+    """Strip leading/trailing blank lines from a captured block."""
+    start = 0
+    end = len(lines)
+    while start < end and lines[start].strip() == "":
+        start += 1
+    while end > start and lines[end - 1].strip() == "":
+        end -= 1
+    return lines[start:end]
 
 
 def _canonicalize_version_header(
@@ -524,6 +550,13 @@ def render(doc: Document) -> str:
     for version in doc.versions:
         out.append(version.header_line)
         out.append("")
+        # Author-supplied preamble (summary paragraph, HTML comment block).
+        # Emitted verbatim between the version header and the first ###
+        # section, with a trailing blank line separator. If the block is
+        # empty (the common case for a clean release), nothing is emitted.
+        if version.preamble:
+            out.extend(version.preamble)
+            out.append("")
         for section in version.sections:
             if section.name in CANONICAL_SUBHEADINGS:
                 out.append(f"### {section.name}")
