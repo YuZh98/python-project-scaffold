@@ -103,8 +103,10 @@ The script applies these mechanically — the examples below show each in contex
   - Good: `Fix license rewrite silently failing when shell cwd doesn't persist.`
 - Group related changes into one bullet at the user-impact level.
 - Each version section opens with a **one-sentence summary** of what the release is
-  about, before any `###` subheading. Pinned by
-  `template/tests/test_cohesion.py::TestChangelogFormat`.
+  about, before any `###` subheading. Recommended by Keep-a-Changelog convention
+  (this rule was previously pinned by `template/tests/test_cohesion.py` but was
+  demoted to a recommendation in v1.8.0 — see CHANGELOG and the template's own
+  `CHANGELOG.md` HTML comment).
 - Do not overuse bolding (`**text**`) — reserve it for genuine emphasis (e.g.
   `**BREAKING**:` prefix on breaking-change entries).
 
@@ -139,15 +141,29 @@ collects answers before re-running.
 
 ## Workflow
 
-1. Run `--check` first to enumerate issues without changing the file.
-2. Read the warnings. For each ambiguous case, ask the user (one question at a time,
-   surface the original line verbatim).
-3. For each missing ref, ask the user for the PR number or commit hash; if the user says
-   "no ref available", record that explicitly and leave the entry unreferenced with an
-   inline `<!-- TODO: ref -->` comment (the script preserves these).
-4. After resolving ambiguities, edit the file with the user's answers, then run the
-   script in default mode to apply mechanical fixes.
-5. Show the resulting diff and the `.bak` location.
+The default for a clean CHANGELOG is to exit quickly without ceremony. Most invocations
+land on a CHANGELOG that's already conformant — running the full ask-loop on every one
+of those is the difference between this skill feeling like a 5-second sanity check and
+feeling like a 2-minute ordeal.
+
+1. **Run `--check` first.** This is cheap (<100 ms on real CHANGELOGs).
+2. **Fast-path: clean CHANGELOG → stop.** If `--check` returns exit code 0 (no
+   warnings, no content changes needed) AND a model-judgment scan of the file shows
+   no Content-rule violations from the section above (multi-sentence bullets,
+   file-path leaks in entries, marketing-tone summary, glued-distinct-changes), report
+   "CHANGELOG is clean — no normalization needed" and stop. **Do not narrate the
+   workflow steps you did not take.**
+3. **Issues found → enumerate, then ask in one batch.** If `--check` surfaces
+   ambiguous cases and missing refs, ask the user about all of them together
+   (one `AskUserQuestion` call with multiple questions, or a single message
+   listing them numbered). Surface each original line verbatim; never paraphrase
+   ambiguous text into something that "sounds right".
+4. **Missing-ref policy.** If the user says "no ref available" for any entry, leave
+   it unreferenced with an inline `<!-- TODO: ref -->` comment — the script
+   preserves these on subsequent runs. **Never fabricate a plausible-looking ref.**
+5. **Apply.** Edit the file with the user's answers, then run the script in default
+   mode to apply mechanical fixes. Show the resulting diff and the `.bak` location
+   in one message, not three.
 
 ## Concrete output examples
 
