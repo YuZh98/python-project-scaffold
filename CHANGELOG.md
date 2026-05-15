@@ -6,6 +6,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · SemVer.
 
 ## [Unreleased]
 
+<!--
+Keep-a-Changelog conventions:
+  - Optional (author taste): some versions lead with a one-sentence summary
+    before the first ### subsection; some don't. Both are fine.
+  - Group related changes into one bullet at the level of user impact — what
+    changed and why it matters. Skip file paths, step numbers, and implementation
+    details. Voice (imperative or descriptive) is your choice.
+    Poor: "Step 5: replaced cd with git -C in the license-amend block."
+    Good: "Fixed license rewrite silently failing when shell cwd doesn't persist."
+  - Six legal section headings, in this order (Keep-a-Changelog 1.1.0 spec) — omit empty ones before releasing:
+    Added · Changed · Deprecated · Removed · Fixed · Security.
+  - Add the PR number or commit hash at the end of each entry.
+  - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
+-->
+
 ## [v1.8.2] - 2026-05-15
 
 Major version bumps in scaffolded repos arrive as individual Dependabot PRs again, not bundled with the weekly minor/patch roll-up.
@@ -26,22 +41,6 @@ Fixes the day-one bootstrap UX: scaffolded repos now install themselves via `pip
 ### Fixed
 - Scaffolded projects now install the package via `pip install -e .` in CI and `make install`, fixing the `ModuleNotFoundError` that turned every freshly scaffolded repo's first push red — Dependabot PRs included. (ba6b761)
 - Dependabot bumps now group per ecosystem and ship with a `chore:` commit prefix, cutting day-one PR noise on a fresh repo from ~7 individual PRs to ~2 grouped ones that pass the Conventional Commits hook. (aeff17e)
-
-<!--
-Keep-a-Changelog conventions:
-  - Recommended (not enforced): lead each versioned section with a one-sentence
-    summary of what the release is about, before any ### subsections. Helps
-    readers scan the changelog top-down.
-  - Group related changes into one bullet at the level of user impact — what
-    changed and why it matters. Skip file paths, step numbers, and implementation
-    details. Voice (imperative or descriptive) is your choice.
-    Poor: "Step 5: replaced cd with git -C in the license-amend block."
-    Good: "Fixed license rewrite silently failing when shell cwd doesn't persist."
-  - Six legal section headings, in this order (Keep-a-Changelog 1.1.0 spec) — omit empty ones before releasing:
-    Added · Changed · Deprecated · Removed · Fixed · Security.
-  - Add the PR number or commit hash at the end of each entry.
-  - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
--->
 
 ## [v1.8.0] - 2026-05-15
 

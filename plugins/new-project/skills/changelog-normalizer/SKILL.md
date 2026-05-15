@@ -99,8 +99,9 @@ The script applies these mechanically — the examples below show each in contex
   - Poor: `Step 5: replaced cd with git -C in the license-amend block.`
   - Good: `Fix license rewrite silently failing when shell cwd doesn't persist.`
 - Group related changes into one bullet at the user-impact level.
-- Each version section opens with a one-sentence summary of what the release is about,
-  before any `###` subheading. Recommended, not required.
+- Summary paragraph (one-sentence lede before the first `###` subheading) is
+  **optional, author taste** — some authors include one per version, some don't.
+  The script preserves whichever choice the author made; neither is enforced.
 - Do not overuse bolding (`**text**`) — reserve it for genuine emphasis (e.g.
   `**BREAKING**:` prefix on breaking-change entries).
 

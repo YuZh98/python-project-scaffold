@@ -9,9 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--
 Keep-a-Changelog conventions:
-  - Recommended (not enforced): lead each versioned section with a one-sentence
-    summary of what the release is about, before any ### subsections. Helps
-    readers scan the changelog top-down.
+  - Optional (author taste): some versions lead with a one-sentence summary
+    before the first ### subsection; some don't. Both are fine.
   - Group related changes into one bullet at the level of user impact — what
     changed and why it matters. Skip file paths, step numbers, and implementation
     details. Voice (imperative or descriptive) is your choice.
