@@ -24,9 +24,7 @@ structure and process-narrative content, not voice. The work is **format conform
 not content authoring. The skill never invents entries, never invents commit hashes or
 PR numbers, and never silently picks a subheading for an ambiguous entry.
 
-The bundled script (`scripts/normalize_changelog.py`) does the mechanical work; this file
-exists to (a) tell the model when to use it, (b) make the style rules unmissable via
-concrete BEFORE/AFTER examples, and (c) define the drift policy for ambiguous cases.
+The bundled script (`scripts/normalize_changelog.py`) does the mechanical work.
 
 ## Trigger examples
 
@@ -45,9 +43,8 @@ concrete BEFORE/AFTER examples, and (c) define the drift policy for ambiguous ca
 
 ## Drift policy (READ BEFORE EDITING)
 
-The whole point of this skill is that the user has been burned by Claude silently picking
-subheadings or fabricating refs across sessions. **The default for ambiguity is to ask,
-not to guess.** Three concrete triggers stop the skill and surface a question:
+**The default for ambiguity is to ask, not to guess.** Three concrete triggers stop the
+skill and surface a question:
 
 1. **Ambiguous entry placement (`Fixed` vs `Changed`, or `Added` vs `Changed`).** "Make
    timeout configurable" could be a bug fix (the old timeout was broken) or an
@@ -211,30 +208,10 @@ Scaffold now ships as a Claude Code plugin bundling the new-project skill alongs
 - Internal-process docs (`docs/superpowers/`, `docs/dev-notes/`, session logs) added to `.gitignore` for both scaffold and template, closing a CLAUDE.md §8 violation that v0.1.0 inadvertently shipped. (#21)
 ```
 
-**Drift patterns fixed (study these — they recur):**
+The drift patterns the BEFORE block illustrates are the Content rules above, applied to a
+worked changelog.
 
-1. **Multi-sentence bullets compressed to one sentence.** Join clauses with `—`, `;`, or `,` instead of starting a new sentence; the period belongs right before the ref.
-2. **Implementation paths stripped.** Keep user-visible artifacts; drop internal file paths that read as code spelunking.
-3. **Meta-pointers dropped.** "See ADR 0001 for the rationale" belongs in the ADR, not the changelog.
-4. **Self-justification framing dropped.** State the change as a clause, not a quoted rule citation.
-5. **Distinct changes split into separate bullets.** Don't glue independent user-facing changes together because they shipped in the same commit.
-6. **Marketing-tone summary rewritten as declarative.** State what shipped; do not editorialize.
-
-### Example B — small release with Added + Changed
-
-```markdown
-## [v1.7.6] - 2026-05-13
-
-The skill can now be installed with a single command. CI automatically builds a `.skill` zip file and attaches it to every GitHub Release on tag push — no manual packaging step needed.
-
-### Added
-- CI workflow that builds and uploads `new-project.skill` to GitHub Releases on every version tag. (#15)
-
-### Changed
-- README install instructions updated to use `gh release download --latest`. (#15)
-```
-
-### Example C — concise refactor entry
+### Example B — concise refactor entry
 
 ```markdown
 ## [v1.7.5] - 2026-05-13
@@ -245,14 +222,6 @@ Skill cut from 452 to 212 lines. License texts moved to a bundled helper script 
 - Skill condensed 53%; license texts extracted to `scripts/write_license.py`. (#14)
 ```
 
-### What these examples illustrate
-
-- One-sentence summary leads each version, explaining what the release is *about* in user-impact terms
-- Entries say WHAT changed and WHY it matters; HOW (file paths, step numbers) is omitted
-- Each entry ends with `(#PR)` or `(commit-hash)` in parens
-- No process narrative, no AI-attribution `Co-Authored-By:` lines, no bolding overuse
-- Voice (imperative or descriptive) is the author's choice — the examples here use a mix and both are fine
-
 ### Reference link (additional canonical examples)
 
 - `https://github.com/YuZh98/python-project-scaffold/blob/main/CHANGELOG.md?plain=1`
@@ -262,25 +231,6 @@ These stay current as the linked CHANGELOGs evolve. For patterns not covered by 
 
 ## IO examples
 
-**Golden path** — *"normalize the changelog at ./CHANGELOG.md"*:
-
-1. Run `python3 scripts/normalize_changelog.py CHANGELOG.md --check`.
-2. Script prints to stderr: `4 mechanical fixes available · 2 ambiguous · 3 missing refs`.
-3. Model surfaces the 2 ambiguous cases and 3 missing-ref cases to user, one at a time.
-4. User answers; model edits the file with answers.
-5. Model runs the script in default mode → `CHANGELOG.md.bak` created, mechanical fixes applied.
-6. Model shows the user the resulting diff.
-
-**Edge — `--check` mode for CI** — *"add a CI step that fails on changelog drift"*:
-
-Run `python3 scripts/normalize_changelog.py CHANGELOG.md --check`. Exit 0 means clean,
-exit 1 means at least one issue. CI fails fast; no file is modified.
-
-**Edge — process narrative auto-strip** — entry contains "per Claude audit pass": the
-script strips the phrase automatically (it's unambiguous — the rule says no AI mentions,
-period). The model does NOT ask. The before/after of the stripped phrase is shown in the
-diff so the user can verify.
-
 **Drift — user asks to generate a changelog from commits** — *"build me a changelog from
 the last 50 commits"*. This is authoring, not normalizing. Stop and confirm: "This skill
 only reformats existing CHANGELOG entries. Generating new entries from commit history is
@@ -289,10 +239,7 @@ out of scope. Do you want to (a) write a draft yourself and have me normalize it
 
 ## Do not
 
-- Fabricate commit hashes or PR numbers under any circumstances.
-- Silently pick between subheadings for ambiguous entries.
 - Rewrite link references at the bottom of the file.
-- Touch any markdown file other than the changelog the user named.
 - Add `Co-Authored-By: Claude` to any commit that comes out of this work.
 - Bundle "while you're at it" changes (version bumps, release-cut steps) — single
   responsibility is the whole point.
