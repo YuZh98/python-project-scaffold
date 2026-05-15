@@ -48,18 +48,18 @@ Tests that assert structural invariants about the code rather than functional be
 
 ## Conventional Commits
 
-A commit-message format: `<type>(<scope>): <subject>` where type is `feat` / `fix` / `chore` / `docs` / `refactor` / `test` / `style` / `perf` / `build` / `ci` / `schema` / `config` / `review`. Subject ≤ 72 chars, imperative mood ("add" not "added"). The format powers automated changelog generation and forces commit authors to declare intent.
+A commit-message format some projects adopt: `<type>(<scope>): <subject>`. Common type values include `feat`, `fix`, `docs`, `chore`, `refactor`, `test` — pick whichever subset fits your project, or skip the prefix entirely. Subject ≤ 72 chars; voice is your choice. The format is useful when paired with automated changelog generation tools.
 
 → [Conventional Commits spec](https://www.conventionalcommits.org/)
 
 ## ADR (Architectural Decision Record)
 
-A short markdown document recording a hard-to-reverse architectural choice: context, decision, alternatives considered, consequences, enforcement. Write one when (a) the decision is architectural, (b) it would be expensive to undo, (c) at least one alternative was viable. The scaffold ships `docs/adr/ADR-0000-scaffold-choices.md` as a worked example you can copy.
+A short markdown document recording a hard-to-reverse architectural choice: context, decision, alternatives considered, consequences, enforcement. Strongly recommended (not mechanically enforced) when (a) the decision is architectural, (b) it would be expensive to undo, (c) at least one alternative was viable. The scaffold ships `docs/adr/ADR-0000-scaffold-choices.md` as a worked example you can copy.
 
 → [Michael Nygard's original ADR essay](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)
 
 ## Keep-a-Changelog + coverage gate
 
-`CHANGELOG.md` follows a fixed format: latest version at top, `[Unreleased]` collects in-progress work, six legal subsection headings (`Added` / `Changed` / `Fixed` / `Removed` / `Deprecated` / `Security`). Coverage gate: the CI fails if `pytest --cov` reports below 95% line coverage on the Python 3.14 matrix entry. Together they make every release auditable and force tests for new code.
+`CHANGELOG.md` follows a fixed format: latest version at top, `[Unreleased]` collects in-progress work, six legal subsection headings (`Added` / `Changed` / `Deprecated` / `Removed` / `Fixed` / `Security`, in Keep-a-Changelog 1.1.0 order). Coverage gate: the CI fails if `pytest --cov` reports below the threshold configured in `pyproject.toml` `[tool.coverage.report] fail_under` (default 80%). Together they make every release auditable and force tests for new code.
 
 → [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · [pytest-cov](https://pytest-cov.readthedocs.io/)

@@ -15,7 +15,7 @@ make test        # pytest + deprecation-strict pass
 make lint        # ruff linting
 make format      # apply ruff formatter to all .py files
 make typecheck   # pyright type checking
-make coverage    # pytest + coverage gate (95%)
+make coverage    # pytest + coverage gate (default 80%, configurable in pyproject.toml)
 ```
 
 ## Submitting Changes

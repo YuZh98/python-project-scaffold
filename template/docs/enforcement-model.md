@@ -14,7 +14,7 @@ The scaffold ships rules at four enforcement tiers. Strong tiers cannot be bypas
 | `pytest tests/` (regular tests) | functional regressions | Code or test |
 | `pyright .` | type-hint correctness, missing annotations | Code (add hints) |
 | `ruff check .` | lint rules (unused imports, line length, dead code) | Code (run `ruff --fix` for autofixable subset) |
-| `pytest --cov` 95% gate | coverage drop below threshold | Add tests |
+| `pytest --cov` coverage gate (default 80%) | coverage drop below threshold | Add tests |
 
 Rules at this tier are non-negotiable: a red CI run blocks merge.
 
@@ -49,7 +49,7 @@ Per-session preferences live in Claude's project memory at `~/.claude/projects/<
 |---------|------|-----|
 | `ruff` autofixed a file → hook exit non-zero | Tier 2 (pre-commit) | `git add` the fixed file; commit again |
 | `pytest tests/test_rules.py::TestNoPrintDebugInProductionCode` red | Tier 1 (pinning test) | Remove `print()` from production; use logging or return value |
-| `pytest --cov` says 91% < 95% | Tier 1 (coverage gate) | Add tests until coverage reaches 95% |
+| `pytest --cov` says 75% < 80% | Tier 1 (coverage gate) | Add tests until coverage reaches the configured threshold |
 | Reviewer comment: "use snake_case here" | Tier 3 (GUIDELINES.md) | Rename the symbol; reply with the GUIDELINES section |
 | `pyright .` says `Argument of type "str" cannot be assigned...` | Tier 1 (type checker) | Add or fix the type hint |
 
