@@ -18,8 +18,6 @@ All notable changes to the new-project plugin. Format: [Keep a Changelog](https:
 
 ## [0.1.1] - 2026-05-14
 
-Scope re-alignment patch. Removes enforcement of taste-level rules so the plugin sticks to industry-universally-agreed conventions plus a small set of explicitly-chosen opinions. No runtime behavior changes outside the changelog normalizer's mood-rewrite path.
-
 ### Changed
 - `changelog-normalizer` no longer rewrites past-tense verbs to imperative mood. Voice is your choice; structural validation (KaC vocabulary + order) and process-narrative detection are unchanged. (c735557)
 - `README.md` repositioned: dropped beginner framing, added explicit "Universal rules enforced" and "What's left to your taste" sections so readers can see what the scaffold pins versus what's configurable. (439ca88)
