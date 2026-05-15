@@ -76,7 +76,7 @@ fi
 
 Each script exits non-zero on failure; propagate and stop.
 
-## IO examples
+## IO examples (concrete output)
 
 **Golden path** — *"scaffold audit-tools, MIT, public, 'Audit helpers for SOC2'"* →
 
@@ -95,28 +95,6 @@ No directory created, no remote calls made.
 **Edge — gh not authenticated**: `gh auth status` fails → preflight refuses with
 `gh is not authenticated. Run 'gh auth login' (needs 'repo' scope), then retry.`
 No directory created, no remote calls made.
-
-**Drift — non-Python request**: *"scaffold a new Rust crate"* → ask the user to confirm
-before doing anything. This skill is Python-only; refuse cleanly or hand off.
-
-## Concrete output examples
-
-**Dry-run** (`DRY_RUN=1`) — no `Finalize` line, no push, no branch-protection call:
-
-```
-✓ Preflight: gh authenticated as alice, cwd outside git.
-✓ Bootstrap: /Users/alice/audit-tools created (init-project ran clean).
-[DRY-RUN] No remote actions taken. Local scaffold at /Users/alice/audit-tools
-```
-
-**Refusal** — printed on stderr, exit non-zero, no target directory created, no scaffold
-cloned, no network calls made. Same shape for all preflight refusals (in-git, gh
-unauthenticated, target exists, scaffold version unreachable):
-
-```
-new-project: refusing to run inside an existing git repo.
-             cd to a parent directory and re-invoke.
-```
 
 ## Do not
 
