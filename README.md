@@ -6,11 +6,48 @@ A Python project scaffold with mature rule-guarding wired from commit 1. Fork or
 
 Starting a new Python project well takes ~30 minutes of repetitive setup: venv, ruff, pyright, pytest, coverage, pre-commit hooks, GitHub Actions matrix, dependabot, issue templates, CHANGELOG scaffolding, ADR ledger, type-hint discipline, src layout. Get it wrong and you spend the first week of every project hunting drift instead of writing code. This scaffold ships every convention pre-wired so you start at "first feature" instead of "first config."
 
-## Who is this for
+## What this is
 
-**Beginners** picking up software engineering practices on a real project. The scaffold ships every convention the discipline expects (tests, type hints, CHANGELOG, ADRs) wired up from commit 1, so you learn by editing a working example rather than configuring from scratch. Pair this with [`docs/concepts.md`](template/docs/concepts.md) (glossary) and [`docs/enforcement-model.md`](template/docs/enforcement-model.md) (architecture) inside any scaffolded project.
+A Python scaffold + Claude Code plugin for developers who want a well-structured, well-rule-guarded baseline from commit 1, plus AI helpers that automate lifecycle steps (scaffold a new project, normalize CHANGELOG, run releases, audit pre-PR diffs).
 
-**Experienced devs** starting a new project. Skip ~30 minutes of repetitive setup. Pin to a release tag (`v1.3.0`+), customize four values, get a green-CI repo ready for the first feature commit. The opinionated defaults (Python 3.11+, src/ layout, ruff + pyright basic, pytest, pre-commit, 95% coverage) are designed to be a sensible baseline you rarely need to touch.
+The scaffold ships with the conventions the SE discipline broadly agrees on, wired up from commit 1 — tests, CI, CHANGELOG, ADRs, type hints, pre-commit hooks. The plugin layers on AI-assisted helpers for the steps you do repeatedly.
+
+This is not a tutorial. It assumes you already know Python and SE practices and want a working example to start from rather than configuring from scratch. Pair it with [`docs/concepts.md`](template/docs/concepts.md) (glossary) and [`docs/enforcement-model.md`](template/docs/enforcement-model.md) (architecture) inside any scaffolded project.
+
+## Universal rules enforced from day 1
+
+Non-negotiable hygiene/safety rules the scaffold pins via tests, hooks, and CI:
+
+| Rule | Why |
+|---|---|
+| No `print()` in production code | Use `logging` — `print()` pollutes stdout and indicates leftover debug. |
+| No secrets in repo | Pattern scan for API keys, AWS access IDs, OpenAI-style keys, bearer tokens. |
+| Type hints on public functions | Self-documenting API; catches signature mistakes at type-check time. |
+| No mutable default args | Python language gotcha — shared state across calls. |
+| Parameterized SQL only | SQL injection is a bad habit even in personal tools. |
+| `src/` layout exists | Structural — many downstream pinning tests assume this layout. |
+| Keep-a-Changelog structural format | `[Unreleased]` section; subheadings drawn from the KaC vocabulary (`Added` / `Changed` / `Deprecated` / `Removed` / `Fixed` / `Security`, in 1.1.0 spec order). Voice and tone are your choice. |
+| Pre-commit hooks | Formatting, EOF newline, merge-conflict markers, YAML/TOML validity — all configured. |
+| CI matrix across `requires-python` | Every supported runtime gets exercised. |
+| Linter + formatter + type checker + test runner + coverage gate exist | Tools wired into CI from commit 1. The specific values (coverage %, line length, etc.) are configurable. |
+
+These rules are pinned by `tests/test_rules.py` and `tests/test_cohesion.py` and run on every commit.
+
+## What's left to your taste
+
+These have sensible defaults but no mechanical enforcement — change without forking:
+
+| Default | How to change |
+|---|---|
+| Coverage threshold = 80% | Edit `[tool.coverage.report] fail_under` in `pyproject.toml`. |
+| Conventional-commit prefixes (suggested) | Use them, skip them, or pick a different convention — the scaffold doesn't lint commit messages. |
+| CHANGELOG entry voice (recommended: describe WHAT changed and WHY it matters) | Document your project's preferred voice in your `CONTRIBUTING.md`. The plugin's `changelog-normalizer` validates structure but doesn't rewrite voice. |
+| Summary paragraph before bullets in CHANGELOG versions | Recommended for top-down readability, not enforced. |
+| ADR for hard-to-reverse architectural decisions | Strongly recommended — `docs/adr/` template included. Not mechanically enforced. |
+| Bullet glyph (`-` vs `*`) | Pick one and be consistent within your project. |
+| Line wrap width, prose style, etc. | Pick what fits your project. |
+
+The plugin (separately versioned in `plugins/new-project/`) layers on more opinionated tooling — see its `README.md` for what it adds and how to override.
 
 ## Quick start
 
@@ -42,7 +79,7 @@ This copies the substituted template to `/path/to/new-project` and leaves the sc
 
 A new project bootstrapped from this scaffold ships with, on day 0:
 
-- **CI**: ruff + pyright (basic) + pytest + deprecation-strict pass + coverage gate (95%) across Python 3.11–3.14.
+- **CI**: ruff + pyright (basic) + pytest + deprecation-strict pass + coverage gate (default 80%, configurable in `pyproject.toml`) across Python 3.11–3.14.
 - **Pre-commit hooks**: ruff (lint + autofix), trailing whitespace, EOF newline, YAML/TOML validity, merge-conflict markers.
 - **Pinning tests** (`tests/test_rules.py`): no `print()` debug, no secrets in tree, public functions have type hints, no mutable default args, import-contract placeholder.
 - **Documentation scaffolds**: `README.md`, `DESIGN.md`, `GUIDELINES.md`, `CHANGELOG.md` (Keep-a-Changelog), `docs/concepts.md` (glossary), `docs/enforcement-model.md` (4-tier rule architecture), `docs/adr/` ledger with a worked-example ADR-0000.
