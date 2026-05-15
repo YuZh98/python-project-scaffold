@@ -6,8 +6,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · SemVer.
 
 ## [Unreleased]
 
+### Fixed
+- `tests/test_scaffold.py` now actually invokes pytest on the scaffolded project (via `--collect-only` inside a throwaway venv); previously the docstring claimed "assert green pytest inside" but no pytest run happened — the gap let the editable-install bug ship through eight scaffold releases. (db19697)
+
 ### Removed
-- Legacy standalone-skill install path: `tooling/claude-code/`, the `release-skill.yml` workflow that auto-published a `.skill` zip on every version tag, the README section documenting the `gh release download` install, and the PR-template line that required syncing the standalone to `~/.claude/skills/`. The plugin (`/plugin install new-project@python-project-scaffold`) is now the only supported install path. (32fcc9c)
+- Legacy standalone-skill install path: `tooling/claude-code/`, the `release-skill.yml` workflow that auto-published a `.skill` zip on every version tag, the README section documenting the `gh release download` install, and the PR-template line that required syncing the standalone to `~/.claude/skills/`. The plugin (`/plugin install python-project-scaffold@python-project-scaffold`) is now the only supported install path. (32fcc9c)
 
 <!--
 Keep-a-Changelog conventions:
