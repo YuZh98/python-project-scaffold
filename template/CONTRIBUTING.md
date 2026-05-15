@@ -39,4 +39,4 @@ make coverage    # pytest + coverage gate (default 80%, configurable in pyprojec
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `style:`, `perf:`, `build:`, `ci:`, `schema:`, `config:`, `review:`
 
-Subject ≤ 72 characters; imperative mood; body explains the WHY when not obvious.
+Subject ≤ 72 characters; body explains the WHY when not obvious. Use whatever voice fits your project's style — examples in this repo use imperative mood, but that's a convention, not a requirement.

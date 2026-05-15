@@ -5,21 +5,24 @@ description: >
   of a CHANGELOG.md file. Trigger on "normalize changelog", "fix changelog format", "clean
   up CHANGELOG entries", "check changelog style", "make the changelog consistent", "lint
   CHANGELOG.md", or `/changelog-normalize`. Use this — not freeform editing — whenever a
-  CHANGELOG already exists and needs to conform to Keep-a-Changelog style: imperative
-  mood, canonical subheadings, commit/PR refs, no AI/audit process narrative. Single
-  responsibility: reformat existing entries. Does NOT invent, add, or remove changelog
-  content. Skip for: writing release notes from scratch, summarizing commits into a new
-  changelog, cutting a release / tagging a version / "release vX.Y.Z" / "ship X.Y.Z"
-  (use `release-helper`, which composes this skill as its pre-step), or non-CHANGELOG
-  markdown.
+  CHANGELOG already exists and needs to conform to Keep-a-Changelog structure: canonical
+  subheadings in spec order, commit/PR refs on every entry, no process narrative. Voice
+  (imperative vs descriptive) is the author's choice — the skill validates structure and
+  process-narrative content, not voice. Single responsibility: reformat existing entries.
+  Does NOT invent, add, or remove changelog content. Skip for: writing release notes from
+  scratch, summarizing commits into a new changelog, cutting a release / tagging a
+  version / "release vX.Y.Z" / "ship X.Y.Z" (use `release-helper`, which composes this
+  skill as its pre-step), or non-CHANGELOG markdown.
 ---
 
 # changelog-normalizer
 
-Reformats `CHANGELOG.md` to a single canonical style (Keep-a-Changelog, imperative mood,
-canonical subheadings, refs on every entry). The work is **format conformance**, not
-content authoring. The skill never invents entries, never invents commit hashes or PR
-numbers, and never silently picks a subheading for an ambiguous entry.
+Reformats `CHANGELOG.md` to a single canonical Keep-a-Changelog 1.1.0 structure
+(canonical subheadings in spec order, refs on every entry, no process narrative). Voice
+in entries (imperative or descriptive) is the author's choice — the skill validates
+structure and process-narrative content, not voice. The work is **format conformance**,
+not content authoring. The skill never invents entries, never invents commit hashes or
+PR numbers, and never silently picks a subheading for an ambiguous entry.
 
 The bundled script (`scripts/normalize_changelog.py`) does the mechanical work; this file
 exists to (a) tell the model when to use it, (b) make the style rules unmissable via
@@ -76,20 +79,20 @@ The script applies these mechanically — the examples below show each in contex
    `### Added` · `### Changed` · `### Deprecated` · `### Removed` · `### Fixed` · `### Security`.
    Empty subheadings are dropped from released versions; `[Unreleased]` keeps them as
    workspace scaffolding for contributors.
-3. **Entry format**: `- {Imperative verb} {object}. ({commit-hash})` or `(#PR-number)`.
+3. **Entry format**: `- {Verb} {object}. ({commit-hash})` or `(#PR-number)`.
    The period comes before the ref — the ref is a parenthetical citation, not part of
    the sentence. Sentence-case capitalization; bullet symbol is `-` only (the script
-   replaces `*`, `+`, `•`).
-4. **Imperative mood** — "Add CSV export", never "Added"/"Adds"/"Adding".
-5. **Version header**: `## [X.Y.Z] - YYYY-MM-DD` for released, `## [Unreleased]` for
+   replaces `*`, `+`, `•`). Voice is your choice (imperative or descriptive) — the
+   script does not rewrite verbs.
+4. **Version header**: `## [X.Y.Z] - YYYY-MM-DD` for released, `## [Unreleased]` for
    pending. Versions sort descending (newest first), with `[Unreleased]` always on top.
-6. **Link references** at the bottom of the file (`[Unreleased]: https://...`) are
+5. **Link references** at the bottom of the file (`[Unreleased]: https://...`) are
    preserved verbatim. The script does not rewrite or invent them.
-7. **Process narrative auto-strip** — any mention of `Claude`, `agent`, `audit pass`,
-   `re-audit`, `AI`, `review iteration`, `per feedback from review`, and any
-   `Co-Authored-By: Claude` line is removed silently. This is unambiguous per the
-   user's global `CLAUDE.md` §1; the script does not ask.
-8. **Candidate duplicates** within a section are flagged for human merge (keep the
+6. **Process narrative auto-strip** — phrases like `per audit pass`, `re-audit`,
+   `review iteration`, `per agent feedback`, `per AI review`, and any `Co-Authored-By:`
+   line referencing an AI assistant are removed silently. This is the privacy/hygiene
+   rule the script enforces non-negotiably; do not ask.
+7. **Candidate duplicates** within a section are flagged for human merge (keep the
    more specific phrasing; if neither is more specific, ask). Never auto-merge.
 
 ## Content rules (judgment — model-enforced)
@@ -200,9 +203,9 @@ Skill cut from 452 to 212 lines. License texts moved to a bundled helper script 
 
 - One-sentence summary leads each version, explaining what the release is *about* in user-impact terms
 - Entries say WHAT changed and WHY it matters; HOW (file paths, step numbers) is omitted
-- Imperative mood frames the change
 - Each entry ends with `(#PR)` or `(commit-hash)` in parens
-- No process narrative, no `Co-Authored-By: Claude`, no bolding overuse
+- No process narrative, no AI-attribution `Co-Authored-By:` lines, no bolding overuse
+- Voice (imperative or descriptive) is the author's choice — the examples here use a mix and both are fine
 
 ### Reference link (additional canonical examples)
 

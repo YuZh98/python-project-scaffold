@@ -59,65 +59,6 @@ SUBHEADING_ALIASES: dict[str, str] = {
     "deprecations": "Deprecated",
 }
 
-# Verbs that signal a past-tense / gerund / third-person entry, mapped to their
-# imperative form. Order matters only for longest-match safety inside word boundaries.
-TENSE_FIXES: dict[str, str] = {
-    "Added": "Add",
-    "Adds": "Add",
-    "Adding": "Add",
-    "Removed": "Remove",
-    "Removes": "Remove",
-    "Removing": "Remove",
-    "Fixed": "Fix",
-    "Fixes": "Fix",
-    "Fixing": "Fix",
-    "Changed": "Change",
-    "Changes": "Change",
-    "Changing": "Change",
-    "Updated": "Update",
-    "Updates": "Update",
-    "Updating": "Update",
-    "Refactored": "Refactor",
-    "Refactors": "Refactor",
-    "Refactoring": "Refactor",
-    "Improved": "Improve",
-    "Improves": "Improve",
-    "Improving": "Improve",
-    "Resolved": "Resolve",
-    "Resolves": "Resolve",
-    "Resolving": "Resolve",
-    "Simplified": "Simplify",
-    "Simplifies": "Simplify",
-    "Simplifying": "Simplify",
-    "Dropped": "Drop",
-    "Drops": "Drop",
-    "Dropping": "Drop",
-    "Deprecated": "Deprecate",
-    "Deprecates": "Deprecate",
-    "Deprecating": "Deprecate",
-    "Replaced": "Replace",
-    "Replaces": "Replace",
-    "Replacing": "Replace",
-    "Introduced": "Introduce",
-    "Introduces": "Introduce",
-    "Introducing": "Introduce",
-    "Implemented": "Implement",
-    "Implements": "Implement",
-    "Implementing": "Implement",
-    "Renamed": "Rename",
-    "Renames": "Rename",
-    "Renaming": "Rename",
-    "Supported": "Support",
-    "Supports": "Support",
-    "Supporting": "Support",
-    "Allowed": "Allow",
-    "Allows": "Allow",
-    "Allowing": "Allow",
-    "Exposed": "Expose",
-    "Exposes": "Expose",
-    "Exposing": "Expose",
-}
-
 # Process-narrative phrases that should be stripped silently. Patterns are
 # case-insensitive and match phrases anywhere in the entry; the surrounding
 # punctuation is cleaned up afterward.
@@ -439,15 +380,9 @@ def _normalize_entry_text(entry: Entry, section: Section, doc: Document) -> None
     # 3. BREAKING marker: normalize to **BREAKING**:.
     text = re.sub(r"^\s*BREAKING\s*[:\-]\s*", "**BREAKING**: ", text)
 
-    # 4. First-word imperative conversion. We only touch the first word; if the
-    #    entry has already been written in the imperative we leave it alone.
-    first_word_match = re.match(r"^(\*\*BREAKING\*\*:\s*)?([A-Za-z][\w'-]*)", text)
-    if first_word_match:
-        prefix = first_word_match.group(1) or ""
-        first_word = first_word_match.group(2)
-        imperative = TENSE_FIXES.get(first_word)
-        if imperative is not None:
-            text = prefix + imperative + text[first_word_match.end():]
+    # 4. (Removed in v0.1.1: first-word imperative conversion.) Voice in
+    #    changelog entries is the author's choice — the normalizer validates
+    #    structure and process-narrative content, not voice.
 
     # 5. Capitalize first letter of body (after any BREAKING prefix).
     body_match = re.match(r"^(\*\*BREAKING\*\*:\s*)?(.*)$", text, re.DOTALL)
