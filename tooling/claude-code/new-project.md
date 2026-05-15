@@ -44,7 +44,7 @@ Store answers as `NAME`, `DESC`, `VISIBILITY`, `LICENSE_ID`. Python floor is a s
 ### Step 3 — Summary + confirm
 
 ```bash
-SCAFFOLD_VERSION="v1.7.9"
+SCAFFOLD_VERSION="v1.8.0"
 PACKAGE_NAME=$(echo "$NAME" | tr '-' '_')
 PROJECT_TITLE=$(echo "$NAME" | tr '-' ' ' | python3 -c "import sys; print(sys.stdin.read().strip().title())")
 TARGET="$(pwd)/$NAME"
