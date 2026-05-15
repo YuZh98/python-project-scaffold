@@ -1,13 +1,31 @@
 version: 2
 updates:
+  # Python dev-deps live in requirements-dev.txt as range constraints
+  # (ruff>=X,<Y); Dependabot bumps the lower bound on minor/patch releases.
+  # Without aggressive grouping, every dev-dep + every GHA-action bump arrives
+  # as its own PR on day one of a fresh repo — typical noise: ~7 PRs the same
+  # afternoon you bootstrap. Group everything per ecosystem and cap at 5 open
+  # PRs to leave headroom for security advisories.
   - package-ecosystem: pip
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      # Project-level CLAUDE.md allows: feat·fix·schema·config·refactor·test·docs·review·chore.
+      # Default `build(deps):` is rejected by the Conventional Commits hook.
+      prefix: chore
+      prefix-development: chore
     groups:
-      python-minor-patch:
-        update-types: [minor, patch]
+      python-deps:
+        patterns: ["*"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+    groups:
+      gha-deps:
+        patterns: ["*"]
