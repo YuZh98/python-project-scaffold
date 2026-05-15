@@ -6,6 +6,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · SemVer.
 
 ## [Unreleased]
 
+### Added
+- Pinning test asserting the template's CI workflow and Makefile install the scaffolded package via `pip install -e .` — closes a CLAUDE.md §7 enforcement gap where ADR-0000 D1 specified editable install but neither artifact implemented it. (ba6b761)
+
+### Fixed
+- Scaffolded projects now install the package via `pip install -e .` in CI and `make install`, fixing the pytest collection failure (`ModuleNotFoundError`) that broke every freshly scaffolded repo's first push — including all Dependabot PRs — under the `src/` layout. (ba6b761)
+
 <!--
 Keep-a-Changelog conventions:
   - Recommended (not enforced): lead each versioned section with a one-sentence
