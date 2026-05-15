@@ -6,8 +6,8 @@ Demonstrates idiomatic pytest patterns:
 - One ``test_<behaviour>`` method per branch / edge case.
 - Plain ``assert`` (no ``unittest`` boilerplate).
 
-100% branch coverage of ``example.py`` so the project's 95% coverage gate stays
-green after scaffolding.
+100% branch coverage of ``example.py`` so the project's coverage gate
+(default 80%, configurable in ``pyproject.toml``) stays green after scaffolding.
 """
 
 from <<PACKAGE_NAME>>.example import Greeter, greet

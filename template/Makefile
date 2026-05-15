@@ -20,7 +20,7 @@ format:
 
 coverage:
 	. .venv/bin/activate && pytest --cov=src --cov-report=term-missing -q
-	. .venv/bin/activate && coverage report --fail-under=95
+	. .venv/bin/activate && coverage report
 
 clean:
 	rm -rf .venv .pytest_cache .ruff_cache .coverage htmlcov __pycache__

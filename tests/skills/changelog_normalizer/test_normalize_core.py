@@ -1,18 +1,15 @@
 """Characterization tests for the core parse/normalize/render pipeline.
 
 These tests pin the current observable behavior of the normalizer so that silent
-regressions in the 757-line script are caught. They cover three things:
+regressions in the script are caught. They cover three things:
 
 1. Round-trip idempotency: parse -> render -> parse -> render is stable.
 2. ``--check`` exits non-zero on a CHANGELOG with violations.
 3. ``--check`` exits zero on a fully canonical CHANGELOG.
-4. Past-tense / gerund first words are rewritten to imperative mood.
 
-The tense test exercises ``_normalize_entry_text`` indirectly by running the
-full ``parse -> normalize -> render`` pipeline on a one-entry CHANGELOG.
-Constructing ``Entry``/``Section``/``Document`` instances by hand to call the
-private helper directly would couple the test to internal data-class shape;
-the public pipeline is the stable surface the script's CLI and consumers use.
+(Removed in v0.1.1: tense-normalization test. Imperative-mood rewriting was
+taste-level enforcement, not industry-universal. The normalizer no longer
+rewrites verbs.)
 """
 from __future__ import annotations
 
@@ -35,7 +32,7 @@ SCRIPT_PATH: Path = (
 
 # A canonical, fully-normalized CHANGELOG used by both the round-trip and the
 # clean-input --check tests. Sections are in canonical order, every entry has
-# a ref, every entry is imperative, every entry ends in a period.
+# a ref, every entry ends in a period.
 CLEAN_CHANGELOG: str = """# Changelog
 
 ## [Unreleased]
@@ -95,7 +92,7 @@ class TestCheckMode(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             bad_path = Path(tmp) / "CHANGELOG.md"
             # Violations: 'New Features' is a drifted subheading alias for 'Added';
-            # the entry has no ref; the first word 'Added' is past tense.
+            # the entry has no ref. (Note: imperative-mood enforcement removed in v0.1.1.)
             bad_path.write_text(
                 "# Changelog\n"
                 "\n"
@@ -134,39 +131,6 @@ class TestCheckMode(unittest.TestCase):
                     f"stderr={result.stderr!r} stdout={result.stdout!r}"
                 ),
             )
-
-
-class TestTenseNormalization(unittest.TestCase):
-    def test_tense_normalization_via_pipeline(self) -> None:
-        """Past-tense first word ('Added') must be rewritten to imperative ('Add').
-
-        ``_normalize_entry_text`` is the function under test, but it operates on
-        Entry/Section/Document instances. We exercise it via the public
-        parse -> normalize -> render pipeline to avoid coupling to internal
-        dataclass shape.
-        """
-        text = (
-            "# Changelog\n"
-            "\n"
-            "## [Unreleased]\n"
-            "\n"
-            "### Added\n"
-            "- Added new --dry-run flag (#42)\n"
-        )
-        doc = parse(text)
-        normalize(doc)
-        rendered = render(doc)
-
-        self.assertIn(
-            "- Add ",
-            rendered,
-            msg=f"expected imperative 'Add' in output; got: {rendered!r}",
-        )
-        self.assertNotIn(
-            "- Added ",
-            rendered,
-            msg=f"past tense 'Added' should have been rewritten; got: {rendered!r}",
-        )
 
 
 if __name__ == "__main__":

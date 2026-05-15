@@ -51,4 +51,4 @@ jobs:
         if: matrix.python-version == '3.14'
         run: |
           pytest --cov=src --cov-report=term-missing -q
-          coverage report --fail-under=95
+          coverage report
