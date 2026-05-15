@@ -20,7 +20,7 @@ set -euo pipefail
 # Pinned to the latest stable scaffold tag. Plugin release flow re-pins
 # this to whichever scaffold tag the plugin release was tested against.
 # ---------------------------------------------------------------------------
-SCAFFOLD_VERSION="v1.8.1"
+SCAFFOLD_VERSION="v1.8.2"
 SCAFFOLD_REPO_URL="https://github.com/YuZh98/python-project-scaffold.git"
 
 die() {
