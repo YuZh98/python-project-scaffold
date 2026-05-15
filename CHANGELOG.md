@@ -21,6 +21,10 @@ Keep-a-Changelog conventions:
   - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
 -->
 
+### Changed
+- Template CHANGELOG comment block reframes summary paragraph as author taste rather than a recommendation. (8cb4767)
+- Plugin-smoke CI step that normalize-checks the plugin CHANGELOG re-tightened from informational back to gating now that the normalizer preserves preamble content. (85a3b67)
+
 ## [v1.8.2] - 2026-05-15
 
 Major version bumps in scaffolded repos arrive as individual Dependabot PRs again, not bundled with the weekly minor/patch roll-up.

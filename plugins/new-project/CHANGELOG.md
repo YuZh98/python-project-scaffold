@@ -5,8 +5,11 @@ All notable changes to the new-project plugin. Format: [Keep a Changelog](https:
 ## [Unreleased]
 
 ### Added
+- Pinning test asserts `normalize_changelog.py` preserves version preamble content (summary paragraphs and HTML comment blocks) on parse → render. (d3119ac)
 
 ### Changed
+- `normalize_changelog.py` now preserves version preamble content instead of silently stripping it; summary paragraphs and `[Unreleased]` HTML comment blocks survive default-mode rewrites. (d3119ac)
+- `changelog-normalizer` SKILL.md reframes summary paragraph as optional author taste rather than a recommendation; the script preserves the author's choice either way. (8cb4767)
 - `audit-runner` report template gains COMPACT and FULL modes selected by finding count — small diffs (≤2 findings, no blockers) emit only Verdict + Executive summary + Findings table. (dc8b1af)
 - `audit-runner` docs dim CHANGELOG checklist trimmed to content-only checks, routing format concerns to `changelog-normalizer` and eliminating the apparent inconsistency when both skills run back-to-back. (73f2afa)
 - `audit-runner` dimension checklists no longer cite v1.8.0-demoted rules as binding — ADR-for-architectural, Conventional Commits prefix list, and TDD cadence are now framed as recommendations matching the demotion. (2cba225)
