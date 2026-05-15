@@ -3,6 +3,7 @@
 install:
 	python -m venv .venv
 	. .venv/bin/activate && pip install -r requirements.txt -r requirements-dev.txt
+	. .venv/bin/activate && pip install -e .
 	. .venv/bin/activate && pre-commit install
 
 test:
