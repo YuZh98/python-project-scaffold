@@ -11,7 +11,6 @@
 - [ ] CI `smoke` green on Linux runner.
 - [ ] If a new rule is added: corresponding pinning test or pre-commit hook also added (or xfail bridge with linked follow-on).
 - [ ] If a placeholder is added/renamed: `template.manifest.json` updated, both `tests/test_scaffold.py` `SAMPLE_VALUES` and `tests/test_init_project.py` `SAMPLE_VALUES` updated.
-- [ ] If `tooling/claude-code/new-project.md` changes: live `~/.claude/skills/new-project/SKILL.md` mirror synced separately.
 - [ ] CHANGELOG entry added under `[Unreleased]`.
 
 ## Architectural decisions

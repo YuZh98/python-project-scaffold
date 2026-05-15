@@ -87,28 +87,9 @@ A new project bootstrapped from this scaffold ships with, on day 0:
 - **Dependabot** for `pip` + `github-actions` (weekly, grouped minor/patch).
 - **OSS hygiene**: LICENSE (MIT default), SECURITY.md, CONTRIBUTING.md, issue + PR templates.
 
-## Claude Code users (optional)
-
-If you use [Claude Code](https://claude.com/claude-code), install the `/new-project` skill to get a 4-question UX with automatic GitHub repo creation and branch protection on top of the scaffold's own bootstrap:
-
-```bash
-# Install latest release (bundles SKILL.md + helper scripts)
-gh release download --latest -R YuZh98/python-project-scaffold \
-  --pattern "new-project.skill" -D /tmp
-unzip -o /tmp/new-project.skill -d ~/.claude/skills/
-```
-
-To pin to a specific version, replace `--latest` with `--tag v1.7.6`.
-
-Then invoke `/new-project` in any Claude Code session. The skill calls `scripts/init-project.py` under the hood — same engine as Options A and B.
-
-The skill is **opt-in**. The scaffold works identically without it.
-
-Source: [`tooling/claude-code/`](tooling/claude-code/). The `.skill` file is attached to every [GitHub Release](https://github.com/YuZh98/python-project-scaffold/releases) automatically by CI.
-
 ## Claude Code plugin
 
-This repo also ships a Claude Code plugin that wraps the scaffold (and ships sibling skills for releases, changelog normalization, and pre-PR audits).
+If you use [Claude Code](https://claude.com/claude-code), install the new-project plugin to get a 4-question UX with automatic GitHub repo creation and branch protection on top of the scaffold's own bootstrap. The plugin also ships sibling skills for releases, changelog normalization, and pre-PR audits.
 
 ```bash
 /plugin marketplace add YuZh98/python-project-scaffold
