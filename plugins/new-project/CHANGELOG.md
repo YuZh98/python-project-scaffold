@@ -18,6 +18,9 @@ All notable changes to the new-project plugin. Format: [Keep a Changelog](https:
 - `changelog-normalizer` SKILL.md Examples B and C strip the source-attribution prefix; the code blocks now stand alone as canonical patterns rather than excerpts. (37fd641)
 - `new-project` SKILL.md compressed — execution-order comments no longer re-document `write_license.py` internals, meta-narration about doc structure dropped from intro and concrete-output sections. (d9a1668)
 - `release-helper` SKILL.md trimmed by ~46 lines — design narration, self-justification framing, and verbose multi-sentence bullets removed. (06e6af0)
+- `changelog-normalizer` SKILL.md consolidated after an independent evaluator scored the file Drift for teaching the same rules in four places; rule list lives only in Content rules now, with examples pointing at it. (3fbc10a)
+- `audit-runner` SKILL.md trimmed by ~50 lines — ASCII pipeline diagram dropped, 8 of 12 meta-principle `*Why:*` lines cut as restating their bullet, "Recommended workflow when invoked manually" footer compressed to a pointer. (3b6c31d)
+- `new-project` SKILL.md trimmed by ~23 lines — dry-run and refusal stubs removed (already shown inline in IO examples), Rust drift-example removed (already covered by Drift policy bullet). (e1e6f0b)
 
 ### Deprecated
 
