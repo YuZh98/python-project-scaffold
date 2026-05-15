@@ -10,3 +10,11 @@ htmlcov/
 dist/
 build/
 .DS_Store
+
+# Internal-process docs (CLAUDE.md §8 — never commit)
+# AI-assisted development workflow artifacts: specs, plans, audits,
+# session logs, agent briefs, dev notes. Local development only.
+docs/superpowers/
+docs/dev-notes/
+*.session.md
+.claude/
