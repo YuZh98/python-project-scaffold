@@ -14,15 +14,13 @@ description: >
 
 # release-helper
 
-Orchestrator for the release sequence defined in `~/.claude/CLAUDE.md` §9. Mechanics
-live in `scripts/release.sh`; this file describes WHEN to invoke, WHY each step matters,
-the ORDER of operations, and what to do on failure.
+Orchestrates one atomic release: rotate `[Unreleased]` → `[X.Y.Z]`, commit, annotated-tag,
+push, then bump `pyproject.toml` to the next dev cycle. Mechanics live in
+`scripts/release.sh`; this file covers WHEN to invoke, ORDER of operations, composition
+with `changelog-normalizer`, and recovery on failure.
 
-Why one skill (not three): the tag, the changelog rotation, and the push must land
-atomically from the reader's POV. Splitting them across separate invocations invites
-drift — a tag pointing at a commit whose changelog still says `[Unreleased]`, or a
-changelog rotated locally but never pushed. The script enforces the order; this skill
-enforces the gate before the script runs.
+The tag, the changelog rotation, and the push must land together — a tag pointing at a
+commit whose changelog still says `[Unreleased]` is the failure mode this skill prevents.
 
 ## Trigger examples
 
@@ -40,52 +38,36 @@ enforces the gate before the script runs.
 ## Drift policy
 
 If the request diverges from the trigger examples — non-Python project, non-Keep-a-Changelog
-format, pre-release version, in-place rewrite without tag/push — **stop and ask the user
-to confirm before running the script**. The script makes pushed-to-origin changes; a wrong
-release is harder to undo than a wrong scaffold. Specifically:
+format, pre-release version, in-place rewrite without tag/push — stop and ask before
+running the script. Specifically:
 
-- **Non-standard branch** (anything outside `main`, `master`, `release/*`): ask before
-  passing `--allow-branch`. Standard release branches are the default for a reason.
-- **Already-tagged version**: refuse hard. Do not offer to delete the tag — the user must
-  do that explicitly and re-invoke.
-- **Empty `[Unreleased]`**: refuse with the message below. Do not invent entries.
+- **Non-standard branch** (anything outside `main`, `master`, `release/*`): ask before passing `--allow-branch`.
+- **Already-tagged version**: refuse hard; do not offer to delete the tag.
+- **Empty `[Unreleased]`**: refuse with the message below; do not invent entries.
 
-The cost of a false refusal is one re-invoke; the cost of a wrong release is a force-push
-debate on a shared branch.
+Default for any other ambiguity is refuse + ask, not guess.
 
 ## Composition: changelog-normalizer (pre-step)
 
-Before rotating `[Unreleased]`, invoke the `changelog-normalizer` skill (same plugin,
-sibling directory) on `CHANGELOG.md` as a pre-step. The normalizer enforces the project's
-Keep-a-Changelog style (bullet voice, subheading order, PR-number suffix). Releasing
-without normalizing bakes drift into the historical record.
+Before rotating `[Unreleased]`, invoke the sibling `changelog-normalizer` skill on
+`CHANGELOG.md`. It enforces Keep-a-Changelog structure (subheading order, refs on every
+entry, no process narrative); see its SKILL.md for the rules.
 
-The invocation is in prose intentionally — the exact runtime form varies by harness, so
-this skill describes WHAT to compose rather than HOW. Hand control to whatever mechanism
-the current runtime uses to load a sibling skill, then return here.
+Hand control to the runtime's sibling-skill loader, then return here.
 
-If `changelog-normalizer` is not installed (plugin partial install, peer skill not yet
-released), warn the user and offer to proceed without normalization. Do not silently
-skip — the user should know the artifact may not match house style. Suggested phrasing:
+If `changelog-normalizer` is not installed, warn the user and offer to proceed without
+normalization — do not silently skip. Suggested phrasing:
 
 > "`changelog-normalizer` skill not found. The release will still work, but
 > `[Unreleased]` entries won't be style-checked first. Proceed anyway? (y/N)"
 
 ## Inputs
 
-Three inputs, one required:
+1. **Version string** (required) — `vX.Y.Z` or `X.Y.Z`; matched against `^v?[0-9]+\.[0-9]+\.[0-9]+$`. The script normalizes both forms.
+2. **`--dry-run`** (optional) — print proposed diff and would-run commands; change nothing.
+3. **`--allow-branch`** (optional) — bypass the main/master/release/* branch check; pass only after explicit user confirmation.
 
-1. **Version string** (required) — `vX.Y.Z` or `X.Y.Z`. Validated against the regex
-   `^v?[0-9]+\.[0-9]+\.[0-9]+$`. The script normalizes both forms internally so you
-   can pass whichever the user typed.
-2. **`--dry-run`** (optional) — print proposed diff and the commands that *would* run,
-   change nothing. Use this on the first invoke if the user seems uncertain, or if the
-   version string is ambiguous.
-3. **`--allow-branch`** (optional, escape hatch) — bypass the main/master/release/*
-   branch check. Use only after explicit user confirmation.
-
-If the user omits the version, ask: *"What version are you cutting? (e.g. `v1.2.0`)"*.
-Do not guess from the changelog or git tags — that's how off-by-one releases happen.
+If the user omits the version, ask: *"What version are you cutting? (e.g. `v1.2.0`)"*. Do not guess from the changelog or git tags.
 
 ## Execution order
 
@@ -97,14 +79,11 @@ bash scripts/release.sh --dry-run "$VERSION"     # 3. show proposed rotation dif
 bash scripts/release.sh "$VERSION"               # 5. execute
 ```
 
-Pass `--allow-branch` only after the user explicitly confirms a non-standard branch.
+Pass `--allow-branch` only after explicit user confirmation of a non-standard branch.
 
-Push is the explicit ask of this skill — the universal "don't push unless asked" rule
-does not apply here. The user invoked the release skill; that is the ask.
+Push is in scope here; do not gate it behind a separate "are you sure you want to push" prompt.
 
-No `--no-verify`, no GPG override. The script inherits the user's `commit.gpgsign` /
-`tag.gpgsign` config; it never overrides git config. Do not add `Co-Authored-By: Claude`
-to the release or version-bump commits — release commits are public artifacts.
+No `--no-verify`, no GPG override, no `Co-Authored-By: Claude` on release or version-bump commits.
 
 ## IO examples
 
@@ -192,56 +171,31 @@ final releases (vX.Y.Z). Pre-release tagging is out of scope; use `git tag` dire
 
 ## Concrete output examples
 
-Golden-path final output (verbatim excerpt from IO example 1 above):
+Golden-path success (two lines, stdout):
 
 ```
-Released v1.2.0 (commit a1b2c3d, tag v1.2.0 pushed).
-Follow-up bump: commit e4f5g6h pushed.
+Released v<VERSION> (commit <SHA>, tag v<VERSION> pushed).
+Follow-up bump: commit <SHA> pushed.
 ```
 
-Dry-run output is a sequence of `[dry-run]` lines describing each proposed mutation,
-terminated by `(no changes made)` — see IO example 4. Refusals print the failure reason
-on stderr followed by `(no changes made)` (IO examples 2-3); no commit, tag, or push is
-ever produced on a refusal path. Pass refusal messages through verbatim — they are the
-script's contract with the user.
+Dry-run: a sequence of `[dry-run]` lines (one per proposed mutation) terminated by `(no changes made)`.
+
+Refusal: failure reason on stderr, then `(no changes made)`; no commit, tag, or push is ever produced. Pass refusal messages through verbatim.
 
 ## Refuse conditions
 
-The script refuses (exit non-zero, no state changed) on any of: dirty working tree,
-detached HEAD, non-release branch without `--allow-branch`, malformed version
-(`^v?[0-9]+\.[0-9]+\.[0-9]+$`), tag already exists locally or on origin, missing
-`CHANGELOG.md` or `## [Unreleased]` heading, zero bullet entries under `[Unreleased]`,
-missing `pyproject.toml`, or `pyproject.toml` version mismatch at the bump step.
-
-Each refusal prints the failure reason and the recovery action; IO examples 2-3 and 5-6
-show the exact wording for the four most common paths.
+The script is the authoritative list of refuse conditions; it exits non-zero with no state changed and prints the failure reason plus the recovery action. IO examples 2-3 and 5-6 show the wording for the four most common paths.
 
 ## On failure
 
-- **Preflight fails** → message on stderr, exit. No state changed. Address and re-invoke.
-- **Normalizer fails / is absent** → warn the user; offer to proceed (release still works,
-  it just won't enforce changelog style).
-- **Rotation succeeds but commit fails** (pre-commit hook rejects, etc.) → `CHANGELOG.md`
-  is modified on disk but not committed. The script leaves it. Do not run `git checkout`
-  automatically — the user may want to inspect the rotation. Print the recovery command:
-  *"To abandon the rotation: `git checkout CHANGELOG.md`. To retry: fix the issue and
-  re-invoke release-helper."*
-- **Tag succeeds but push fails** (network, auth, branch protection) → commit and tag
-  exist locally. Print: *"Local commit and tag created. Push failed: <reason>. To retry:
-  `git push && git push --tags` once resolved."* Do not auto-retry — auth or branch
-  protection issues need a human.
-- **Version bump fails** → primary release is already pushed and is the irreversible
-  part; the dev-cycle bump can be done by hand. Print: *"Release v1.2.0 is live. The
-  follow-up version bump failed: <reason>. To retry by hand: edit `pyproject.toml`
-  version to `1.2.1.dev0`, then `git commit -am 'chore: bump version to 1.2.1.dev0' &&
-  git push`."*
+- **Preflight fails** → message on stderr, exit; no state changed; address and re-invoke.
+- **Normalizer fails / is absent** → warn the user and offer to proceed without it.
+- **Rotation succeeds but commit fails** (pre-commit hook, etc.) → `CHANGELOG.md` is modified on disk but not committed; do not auto-`git checkout`. Print: *"To abandon the rotation: `git checkout CHANGELOG.md`. To retry: fix the issue and re-invoke release-helper."*
+- **Tag succeeds but push fails** (network, auth, branch protection) → commit and tag exist locally; do not auto-retry. Print: *"Local commit and tag created. Push failed: <reason>. To retry: `git push && git push --tags` once resolved."*
+- **Version bump fails** → release is already pushed and irreversible; the dev-cycle bump can be done by hand. Print: *"Release v1.2.0 is live. The follow-up version bump failed: <reason>. To retry by hand: edit `pyproject.toml` version to `1.2.1.dev0`, then `git commit -am 'chore: bump version to 1.2.1.dev0' && git push`."*
 
 ## Do not
 
-- Auto-delete a pre-existing tag to "make room" for the release. Destructive; the user
-  must do it explicitly and re-invoke.
+- Auto-delete a pre-existing tag to "make room" for the release; the user must do it explicitly and re-invoke.
 - Push amended commits over a published tag.
-- Invent `[Unreleased]` entries to make an empty-changelog release work. Refuse instead.
-
-(The `--no-verify`, GPG-override, and `Co-Authored-By: Claude` prohibitions are stated
-once under Execution order — they are not repeated here.)
+- Invent `[Unreleased]` entries to make an empty-changelog release work; refuse instead.
