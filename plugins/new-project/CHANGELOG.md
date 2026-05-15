@@ -7,6 +7,10 @@ All notable changes to the new-project plugin. Format: [Keep a Changelog](https:
 ### Added
 
 ### Changed
+- `audit-runner` report template gains COMPACT and FULL modes selected by finding count; small diffs (≤2 findings, no blockers) emit only Verdict + Executive summary + Findings table, dropping ~80% of the scaffolding that drowned the signal on one-nit audits. Coordinator brief Step 5 updated in lockstep so the template change actually bites. (dc8b1af)
+- `audit-runner` docs dim CHANGELOG checklist trimmed to content-only checks (entry-exists, verb-effect-vs-diff); format checks (KaC structure, mood, ref-trailer) routed to `changelog-normalizer` instead, eliminating the apparent inconsistency when both skills run back-to-back. Demoted imperative-mood rule (v1.8.0) removed from the list. (73f2afa)
+- `changelog-normalizer` workflow adds an explicit fast-path: a clean CHANGELOG (no `--check` warnings, no content-rule violations) reports clean and stops, instead of walking the full ask-loop. Ambiguity asks batched into a single round-trip. Stale `test_cohesion.py::TestChangelogFormat` citation corrected after the v1.8.0 demotion. (806b54f)
+- `changelog-normalizer` SKILL.md Example A replaced with a before/after revision of scaffold v1.8.0 — six numbered drift patterns enumerated (multi-sentence bullets, file-path leaks, meta-pointers, self-justification framing, glued-distinct changes, marketing-tone summary). (0ddcbba)
 
 ### Deprecated
 

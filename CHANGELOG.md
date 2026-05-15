@@ -10,9 +10,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · SemVer.
 - Pinning test asserting the template's CI workflow and Makefile install the scaffolded package via `pip install -e .` — closes a CLAUDE.md §7 enforcement gap where ADR-0000 D1 specified editable install but neither artifact implemented it. (ba6b761)
 
 ### Changed
-- `audit-runner` report template now has COMPACT and FULL modes; small diffs (≤2 findings, no blockers) emit only Verdict + Executive summary + Findings table, dropping ~80% of the scaffolding that drowned the signal on one-nit audits. (dc8b1af)
-- `audit-runner` docs dim no longer re-flags CHANGELOG format issues that `changelog-normalizer` already owns — eliminates the apparent inconsistency between sibling skills running back-to-back. (73f2afa)
-- `changelog-normalizer` workflow adds an explicit fast-path: a clean CHANGELOG reports clean and stops, instead of walking the full ask-loop. Cuts a 2-minute ceremony down to seconds on the common case. (806b54f)
+- Plugin-smoke CI step that normalize-checks `plugins/new-project/CHANGELOG.md` loosened from `--check` (gating) to `--diff` with `continue-on-error: true` (informational) as a workaround until the normalizer script learns to preserve summary paragraphs and HTML comment blocks. (fff284e)
 
 ### Fixed
 - Scaffolded projects now install the package via `pip install -e .` in CI and `make install`, fixing the pytest collection failure (`ModuleNotFoundError`) that broke every freshly scaffolded repo's first push — including all Dependabot PRs — under the `src/` layout. (ba6b761)
