@@ -4,8 +4,10 @@ updates:
   # (ruff>=X,<Y); Dependabot bumps the lower bound on minor/patch releases.
   # Without aggressive grouping, every dev-dep + every GHA-action bump arrives
   # as its own PR on day one of a fresh repo — typical noise: ~7 PRs the same
-  # afternoon you bootstrap. Group everything per ecosystem and cap at 5 open
-  # PRs to leave headroom for security advisories.
+  # afternoon you bootstrap. Group all packages per ecosystem, but only for
+  # minor + patch updates — major bumps (ruff 1→2, pyright 2→3) still arrive
+  # as individual PRs so they get individual review. Cap at 5 open PRs to
+  # leave headroom for security advisories.
   - package-ecosystem: pip
     directory: /
     schedule:
@@ -19,6 +21,7 @@ updates:
     groups:
       python-deps:
         patterns: ["*"]
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -29,3 +32,4 @@ updates:
     groups:
       gha-deps:
         patterns: ["*"]
+        update-types: [minor, patch]
