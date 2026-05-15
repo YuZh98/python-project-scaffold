@@ -8,12 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 <!--
-Keep-a-Changelog conventions (see GUIDELINES.md §10):
-  - Lead each versioned section with a one-sentence summary of what the release is about,
-    before any ### subsections. Enforced by test_cohesion.py::TestChangelogFormat.
+Keep-a-Changelog conventions:
+  - Recommended (not enforced): lead each versioned section with a one-sentence
+    summary of what the release is about, before any ### subsections. Helps
+    readers scan the changelog top-down.
   - Group related changes into one bullet at the level of user impact — what
     changed and why it matters. Skip file paths, step numbers, and implementation
-    details. Imperative mood.
+    details. Voice (imperative or descriptive) is your choice.
     Poor: "Step 5: replaced cd with git -C in the license-amend block."
     Good: "Fixed license rewrite silently failing when shell cwd doesn't persist."
   - Six legal section headings, in this order (Keep-a-Changelog 1.1.0 spec) — omit empty ones before releasing:
