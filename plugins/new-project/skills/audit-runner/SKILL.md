@@ -54,9 +54,8 @@ framework shape, the IO contract, and the recommended invocation pattern.
   caller — model, human, or a higher-level orchestrator — and depends on what the
   current runtime supports.
 
-The composition pattern is **prose-driven**, consistent with how `release-helper`
-composes `changelog-normalizer`: the skill describes WHAT to compose; the runtime decides
-HOW.
+Composition is **prose-driven**: the skill describes WHAT to compose; the runtime
+decides HOW.
 
 ---
 
@@ -148,7 +147,7 @@ Eleven dimensions, split into two tiers. Each has a checklist file under `dimens
 | `design` | Design quality | Architecture, layer boundaries, single responsibility, file size, abstraction fit, intent-revealing names (judgment-tier). |
 | `conventions` | Conventions | **Lint-tier mechanical, not judgment.** snake_case, type hints on public, no `print()`, no magic numbers, formatter clean, GUIDELINES.md rule violations. |
 | `tests` | Test quality | (a) **Discipline**: TDD followed? failing-then-passing? coverage gate met? (b) **Code quality**: mock abuse, brittleness, isolation, intent-revealing names, gaps in critical path. |
-| `docs` | Docs & comments | CHANGELOG `[Unreleased]` entry (format + PR#/hash), ADR if architectural, docstrings on public API, comment quality, README example accuracy, deprecation notices, user-facing error clarity. **DESIGN.md / GUIDELINES.md drift sweeps**: *history-as-guidance* (rationale that no longer holds) and *WHAT-vs-HOW/WHY overspec* (implementation recipes / file-path enumerations / pinned-version specifics that will rot). |
+| `docs` | Docs & comments | CHANGELOG `[Unreleased]` entry presence and verb/diff agreement (format checks live in `changelog-normalizer`), ADR for hard-to-reverse decisions, docstrings on public API, comment quality, README example accuracy, deprecation notices, user-facing error clarity. **DESIGN.md / GUIDELINES.md drift sweeps**: *history-as-guidance* (rationale that no longer holds) and *WHAT-vs-HOW/WHY overspec* (implementation recipes / file-path enumerations / pinned-version specifics that will rot). |
 | `ci` | CI & rule enforcement | GHA YAML validity, pre-commit hooks updated if rule changed, **§7 enforcement: new rule has pinning test in same PR OR explicit `xfail(strict=False)` with reason linking follow-up PR**, coverage gate, CI matrix covers `requires-python`. |
 
 ### CONTEXT-AWARE (evaluate OR emit explicit "N/A because <reason>", five dims)
@@ -203,20 +202,13 @@ runtime-specific; the skill describes WHAT to compose, not HOW.
    final report (markdown, shape per scripts/report_template.md)
 ```
 
-**Composition is prose-driven, not executable.** The model (or human) reading this skill
-decides whether to dispatch fresh-context sub-agents per context-aware dim, run all dims
-in a single pass, or hand off to a human reviewer — based on what the runtime supports
-and what the user asked for. If sub-agent dispatch is available and the audit budget
-allows it, dispatching one per triggered context-aware dim is the recommended shape (it
-maximises independence per dim); if it isn't, a single-pass walk that simulates the
-fresh-context discipline by re-reading the brief between dims is the fallback. **Either
-way, the framework's correctness — primary-dim rule, drift sweeps, mandatory N/A,
-meta-principles — is unchanged.**
+**Composition is prose-driven, not executable.** The runtime decides whether to
+dispatch fresh-context sub-agents per context-aware dim or simulate the discipline by
+re-reading the brief between dims in a single pass. The framework's correctness —
+primary-dim rule, drift sweeps, mandatory N/A, meta-principles — is identical either way.
 
-If `surface_detect.py` is not runnable in the current environment (no Python, no diff on
-disk), state that explicitly and either ask the user to provide the trigger list or
-proceed with the dimensions checklist applied conservatively (every context-aware dim
-gets evaluated).
+If `surface_detect.py` is not runnable (no Python, no diff on disk), say so and either
+ask for the trigger list or evaluate every context-aware dim conservatively.
 
 ### Mode → recommended-shape mapping
 
@@ -363,7 +355,10 @@ considered-and-rejected trigger lists.
 
 ## Concrete output shape
 
-The auditor writes to `scripts/report_template.md`'s structure. A short stub:
+The auditor writes to `scripts/report_template.md`'s structure. The template
+has two modes (COMPACT for ≤2 findings with no blockers; FULL otherwise); see
+the template comments for the split. The stub below is the **FULL** form
+(two blockers present):
 
 ```markdown
 ## Verdict
@@ -378,7 +373,7 @@ CHANGELOG format. Behaviour-changing PR; this gate must pass before merge.
 |----|-------------|----------|---------------------------------|---------------------------------------------------------------|------------------------------------------------------------|
 | F1 | security    | blocker  | src/release/rollback.py:42      | `subprocess.run(..., shell=True)` with user-supplied tag name | Set `shell=False`, pass argv list, validate tag via regex. |
 | F2 | correctness | blocker  | src/release/rollback.py:38      | Removed guard against empty tag name (silent breakage).       | Restore `if not tag: raise ValueError(...)`.               |
-| F3 | docs        | major    | CHANGELOG.md:8                  | `[Unreleased]` entry missing PR# / commit hash trailer.       | Append ` (#142)` per project convention.                   |
+| F3 | docs        | major    | CHANGELOG.md:8                  | `[Unreleased]` entry verb says "Added", but the diff is a bug fix in rollback. | Move entry to `Fixed` and rewrite to describe the fix.     |
 
 ## Cross-cutting observations
 - The rollback path lacks any tests for the new shell-out branch; this would have caught
@@ -436,26 +431,19 @@ audit-runner/
 
 ## Recommended workflow when invoked manually or by the model
 
-This is reference guidance for whoever (model or human) is running the audit, not
-commands the skill itself executes:
+The runtime handbook (step-by-step procedure) lives in `scripts/coordinator_brief.md`.
+The shell pattern that produces the trigger list, then loads everything the auditor
+needs:
 
 ```bash
-# 1. Produce the trigger list from the staged diff (or a passed --diff-file).
+# Produce the trigger list from the staged diff (or a passed --diff-file):
 git diff --staged | python3 scripts/surface_detect.py > /tmp/audit_triggers.json
 
-# 2. Load into the audit pass (fresh context):
-#    - scripts/coordinator_brief.md
-#    - the diff
-#    - /tmp/audit_triggers.json
-#    - the project brief (GUIDELINES.md, CLAUDE.md, DESIGN.md)
-#    - mode flags (scope, depth)
-#
-#    Walk 6 CORE dims sequentially, then for each triggered context-aware dim, do a
-#    focused pass per the depth/scope rules above (dispatching a fresh sub-agent if the
-#    runtime supports it — the skill itself does not). Dedupe via primary-dim rule and
-#    write the report from scripts/report_template.md.
+# Then load into the audit pass (fresh context):
+#   scripts/coordinator_brief.md, the diff, /tmp/audit_triggers.json,
+#   the project brief (GUIDELINES.md / CLAUDE.md / DESIGN.md), and mode flags.
 ```
 
-This file establishes the *contract* — the framework, the modes, the output shape, the
-meta-principles. The brief in `scripts/coordinator_brief.md` is the operational handbook
-the auditor loads at the start of an audit pass.
+This file is the *contract* — framework, modes, output shape, meta-principles.
+`scripts/coordinator_brief.md` is the operational handbook the auditor loads at
+the start of a pass.

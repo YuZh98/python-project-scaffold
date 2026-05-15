@@ -26,9 +26,10 @@ Not applicable — always evaluated. Tests are CORE even when the diff is test-o
 1. **New behaviour → new test.** Every new public function or new branch in existing
    code should have an accompanying test. If not, flag it.
 
-2. **TDD cadence visible in commits.** Project rule (global §3): multi-sub-task feature
-   work follows `test:` (red) → `feat:` (green) → `chore:` (rollup). Look at the
-   commit list. Single-commit refactors with no behaviour change are exempt.
+2. **TDD cadence visible in commits.** Recommended default for multi-sub-task feature
+   work: `test:` (red) → `feat:` (green) → `chore:` (rollup). Note deviations as a
+   minor unless the project pins the cadence as a hard rule. Single-commit refactors
+   with no behaviour change are exempt.
 
 3. **Coverage gate met for new code.** The audit is static — you can't run coverage —
    but you can spot obvious gaps: a new `try/except` branch with no test that exercises

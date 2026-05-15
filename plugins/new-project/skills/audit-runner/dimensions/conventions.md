@@ -40,8 +40,9 @@ Not applicable — always evaluated.
      `.execute("..." % var)` or `.format()` in SQL strings.
    - "Validate input at boundaries" — flag write paths that don't reject
      whitespace-only required fields.
-   - "Conventional Commits with allowed types only" — flag commit messages outside
-     the project's allowed type list (visible in `git log` of the diff).
+   - Commit-message prefix outside the project's documented type list (visible in
+     `git log` of the diff). Treat as a minor unless the project explicitly pins
+     the list as a hard rule.
 
 7. **Imports.** Unused imports introduced by the diff. Wildcard imports. Import order
    if the project enforces one (isort, ruff-isort).

@@ -32,8 +32,8 @@ Not applicable — always evaluated.
    one of those, route the finding to a note "run changelog-normalizer
    before re-audit" instead of opening a row in the findings table.
 
-2. **ADR if architectural.** Per global rules §6, hard-to-reverse architectural
-   decisions get an ADR. Does the diff introduce one? Examples that demand an ADR:
+2. **ADR if architectural.** Hard-to-reverse architectural decisions are strong
+   candidates for an ADR. Does the diff introduce one? Examples worth an ADR:
    - New external service dependency.
    - Schema migration with a non-trivial rollback path.
    - Choice of one library over another for a load-bearing concern.
@@ -110,7 +110,7 @@ Severity guide: drift in DESIGN.md = major when active code disagrees; minor whe
 | Severity | When |
 |----------|------|
 | blocker  | Public API change with no CHANGELOG entry and no deprecation; user-facing error message that misrepresents the failure (could cause data loss decisions). |
-| major    | README example invalidated by the diff; CHANGELOG entry missing PR#/hash trailer; missing ADR for a clearly architectural decision. |
+| major    | README example invalidated by the diff; missing ADR for a clearly hard-to-reverse architectural decision. |
 | minor    | Docstring style inconsistent with project convention; comment that says what the code says; TODO without ticket. |
 | nit      | Minor wording in a comment or CHANGELOG entry. |
 

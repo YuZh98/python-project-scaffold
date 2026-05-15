@@ -54,10 +54,11 @@ what kind of change (new code / modification / deletion / rename), rough LOC del
 - **`scope=files=<list>`**: ignore findings outside the listed paths. Note in `## What I
   did NOT check and why` which paths were excluded.
 - **`depth=blocker-only`**: only surface `blocker` findings. Walk the 6 CORE dims but
-  emit nothing below `blocker`. Skip all sub-agents.
+  emit nothing below `blocker`. Skip all context-aware focused passes.
 - **`depth=major+`** *(default)*: emit `blocker` and `major`. Skip `minor` and `nit`
-  except in `## What's done well` contrasts. Spawn sub-agents per the trigger list.
-- **`depth=all`**: emit all severities. Spawn one sub-agent for every applicable
+  except in `## What's done well` contrasts. Run a focused pass per triggered
+  context-aware dim (sub-agent dispatch where the runtime supports it).
+- **`depth=all`**: emit all severities. Run a focused pass for every applicable
   context-aware dim **regardless of triggers** (parallel where the runtime supports it).
 
 ### Step 2 — Walk the 6 CORE dims sequentially
@@ -82,19 +83,20 @@ Order (matters only for surfacing high-severity findings early):
    test in same PR OR explicit `xfail(strict=False)` with linked follow-up), coverage
    gate, CI matrix vs `requires-python`.
 
-### Step 3 — Dispatch sub-agents for context-aware dims
+### Step 3 — Focused pass per triggered context-aware dim
 
 Read `/tmp/audit_triggers.json`. For each unique context-aware dim that has triggers (or
 all of them if `depth=all`):
 
-- Spawn a sub-agent with **fresh context** (your context, the diff, the dim's checklist,
-  and the trigger list filtered to that dim).
-- Instruct it: single-dim focus, severity-tiered findings, file:line citations,
-  suggested fix inline, one finding = one fact.
-- It returns a list of findings in the same row shape as the report's findings table.
+- Run a focused pass against the dim's checklist with the trigger list filtered to
+  that dim. If the runtime supports fresh-context sub-agent dispatch, dispatch one
+  per dim; otherwise re-read the project brief between dims to simulate the
+  fresh-context discipline. The framework's correctness is identical either way.
+- Each focused pass produces: single-dim focus, severity-tiered findings, file:line
+  citations, suggested fix inline, one finding = one fact.
 
-For context-aware dims **with no triggers** (and `depth != all`), do not spawn a
-sub-agent. Mark them `N/A because no surface in diff` in the report, and list the
+For context-aware dims **with no triggers** (and `depth != all`), skip the focused
+pass. Mark them `N/A because no surface in diff` in the report, and list the
 trigger patterns you considered.
 
 ### Step 4 — Merge and apply the primary-dim rule
@@ -155,14 +157,17 @@ Re-read your draft against these:
 
 1. Every finding has file:line and a suggested fix.
 2. No finding appears in two rows.
-3. Every context-aware dim either has findings OR appears in N/A with a reason.
+3. *(FULL mode)* Every context-aware dim either has findings OR appears in N/A
+   with a reason. *(COMPACT mode)* The executive-summary footer names the N/A
+   dims in one short line.
 4. The diff is **not** recapped — every line of the report adds something beyond what
    the reader can see in the diff itself.
 5. No invented requirements. If a finding cites a rule, the rule exists in GUIDELINES /
    CLAUDE.md / global rules; not in your head.
 6. Severity is calibrated against the dim's severity guide, not your mood.
-7. The "What I did NOT check" section names at least the obvious omissions (test
-   execution, runtime behaviour, anything you deferred for time budget).
+7. *(FULL mode)* The "What I did NOT check" section names at least the obvious
+   omissions (test execution, runtime behaviour, anything you deferred for time
+   budget). *(COMPACT mode)* The section is omitted.
 
 If any check fails, fix it before emitting.
 
