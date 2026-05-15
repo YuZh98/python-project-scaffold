@@ -6,6 +6,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · SemVer.
 
 ## [Unreleased]
 
+## [v1.8.2] - 2026-05-15
+
+Restores per-major-PR review for the template's Dependabot config. v1.8.1 broadened the pip and github-actions groups to `patterns: ["*"]` without preserving the `update-types: [minor, patch]` filter, which silently bundled major version bumps with routine updates; this release re-adds the filter so majors arrive as individual PRs again.
+
+### Fixed
+- Template Dependabot config re-adds `update-types: [minor, patch]` to the pip and github-actions groups so major version bumps (e.g. ruff 1→2, pyright 2→3) get individual PRs for review instead of being bundled with the weekly minor/patch roll-up. (9f518aa)
+
 ## [v1.8.1] - 2026-05-15
 
 Fixes the day-one bootstrap UX: scaffolded repos now install themselves via `pip install -e .` in CI and `make install` so pytest collection succeeds on first push, and Dependabot bumps are grouped per ecosystem with a `chore:` commit prefix to cut PR noise.
