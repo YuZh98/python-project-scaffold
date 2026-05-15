@@ -21,6 +21,13 @@ Keep-a-Changelog conventions:
   - On release: rotate this block to ## [vX.Y.Z] - YYYY-MM-DD, then re-add empty [Unreleased] above.
 -->
 
+## [v1.8.3] - 2026-05-15
+
+Fresh repos start with current dev-dep floors, so day-one is now zero Dependabot PRs instead of one or two grouped ones.
+
+### Added
+- `scripts/refresh_dev_deps.py` rewrites `requirements-dev.txt` lower bounds to the current `major.minor` of each package per PyPI; called at bootstrap time so freshly scaffolded repos inherit floors that already match upstream. (076902c)
+
 ### Changed
 - Template CHANGELOG comment block reframes summary paragraph as author taste rather than a recommendation. (8cb4767)
 - Plugin-smoke CI step that normalize-checks the plugin CHANGELOG re-tightened from informational back to gating now that the normalizer preserves preamble content. (85a3b67)
