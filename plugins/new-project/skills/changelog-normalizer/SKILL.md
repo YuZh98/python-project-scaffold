@@ -153,22 +153,59 @@ collects answers before re-running.
 
 These verbatim excerpts from production CHANGELOGs anchor "what good output looks like."
 
-### Example A — single-sentence summary + multi-entry Fixed section
+### Example A — before/after revision (scaffold v1.8.0)
 
-From `python-project-scaffold/CHANGELOG.md` v1.7.7:
+The drift patterns this skill exists to catch are easiest to see side by side. Both blocks below are real: the BEFORE shipped in `python-project-scaffold` commit `68fdfdc` (the initial v1.8.0 release commit) and was flagged by the author as drifted; the AFTER shipped in commit `ec6c0bb` (`docs: revise v1.8.0 CHANGELOG entries to match canonical style`).
+
+**BEFORE** — drifted:
 
 ```markdown
-## [v1.7.7] - 2026-05-14
+## [v1.8.0] - 2026-05-15
 
-Correctness fixes found by independent multi-agent audit. The most impactful: non-MIT license files were being generated with incorrect text (a condensed paraphrase of Apache-2.0 instead of the full SPDX text), and several shell-level guards that the skill described in prose weren't actually enforced.
+The scaffold ships a Claude Code plugin (`plugins/new-project/`) bundling the new-project skill plus three sibling skills (release-helper, changelog-normalizer, audit-runner) via a self-hosted marketplace. Scaffold-level defaults rebalance toward universality: coverage threshold drops from 95% to 80%, imperative-mood and ADR-for-decisions rules demoted from required to recommended, and the cohesion test no longer enforces summary-paragraph style.
 
-### Fixed
-- Apache-2.0 license text was a condensed paraphrase; replaced with the full canonical SPDX verbatim. (#18)
-- Non-MIT license rewrite used `cd` to change directories, which doesn't persist across tool calls; now uses `git -C` to operate without changing cwd. (#18)
-- Dry-run relied on Claude reading instructions to skip GitHub steps; now an explicit shell gate exits before any network operation. (#18)
-- Bootstrapping into an existing directory produced undefined behaviour; skill now aborts with a clear message if the target path already exists. (#18)
-- License script was sourced from a hardcoded install path, breaking for users who copied only SKILL.md; now tries the bundled path first and falls back to the cloned scaffold. (#18)
+### Added
+- Claude Code plugin (`plugins/new-project/`) packaging the scaffold's existing skill plus three sibling skills (release-helper, changelog-normalizer, audit-runner). Distributed via self-hosted marketplace at `.claude-plugin/marketplace.json`. See ADR 0001 for the decoupled-versioning rationale. (64e6db5)
+
+### Changed
+- Template default coverage threshold lowered from 95% to 80%. Projects bootstrapped from the scaffold now inherit the conservative default with a comment suggesting they raise it as the project stabilizes. Existing bootstrapped projects are unaffected. (#22)
+- Template `tests/test_cohesion.py` no longer pins summary-paragraph-before-bullets in CHANGELOG versioned sections. Demoted to a recommendation in the template's `CHANGELOG.md` HTML comment. (#22)
+- Template docs no longer prescribe imperative mood in commit messages or changelog entries. Conventional-commits prefix list demoted from "must use these types" to "common examples". (#22)
+- ADR-for-hard-to-reverse-decisions wording changed from "required" to "strongly recommended" across template docs. (#22)
+
+### Security
+- Internal-process docs (`docs/superpowers/`, `docs/dev-notes/`, session logs) added to `.gitignore` for both scaffold and template. Closes a violation of CLAUDE.md §8 ("Internal-process docs are gitignored and never committed") that v0.1.0 inadvertently shipped. (#21)
 ```
+
+**AFTER** — canonical:
+
+```markdown
+## [v1.8.0] - 2026-05-15
+
+Scaffold now ships as a Claude Code plugin bundling the new-project skill alongside release-helper, changelog-normalizer, and audit-runner. Template-side defaults also relax: coverage threshold drops from 95% to 80%, and the imperative-mood, ADR-for-decisions, and summary-paragraph rules are demoted from required to recommended.
+
+### Added
+- Claude Code plugin (`plugins/new-project/`) bundling the new-project skill alongside release-helper, changelog-normalizer, and audit-runner; distributed via a self-hosted marketplace. (64e6db5)
+
+### Changed
+- Template default coverage threshold lowered from 95% to 80% — conservative starting point with a comment suggesting projects raise it as they stabilize. (#22)
+- Summary-paragraph-before-bullets rule in template CHANGELOG sections demoted from pinning test to recommendation in the comment block. (#22)
+- Imperative-mood requirement on commit messages and changelog entries dropped as taste-pinning. (#22)
+- Conventional Commits prefix list demoted from "must use these types" to "common examples". (#22)
+- ADR-for-hard-to-reverse-decisions wording softened from "required" to "strongly recommended" across template docs. (#22)
+
+### Security
+- Internal-process docs (`docs/superpowers/`, `docs/dev-notes/`, session logs) added to `.gitignore` for both scaffold and template, closing a CLAUDE.md §8 violation that v0.1.0 inadvertently shipped. (#21)
+```
+
+**Drift patterns fixed (study these — they recur):**
+
+1. **Multi-sentence bullets compressed to one sentence.** Every BEFORE bullet under `### Added` and `### Changed` ran two or three sentences; AFTER bullets are one sentence each with the period right before the ref. Join clauses with `—`, `;`, or `,` instead of starting a new sentence.
+2. **Implementation paths stripped from bullets.** BEFORE leaked HOW: `.claude-plugin/marketplace.json`, `tests/test_cohesion.py`, "Conventional-commits prefix list demoted from ... to ...". AFTER keeps the user-visible artifact (`plugins/new-project/`) but drops file paths that read as code spelunking.
+3. **Meta-pointers dropped.** "See ADR 0001 for the decoupled-versioning rationale" is a reference for someone who already cares about the architecture; not changelog material. AFTER removes it.
+4. **Self-justification framing dropped.** BEFORE's "Closes a violation of CLAUDE.md §8 ('Internal-process docs are gitignored and never committed') that v0.1.0 inadvertently shipped" is process narrative. AFTER says the same thing as a clause: "closing a CLAUDE.md §8 violation that v0.1.0 inadvertently shipped" — no scare quotes around the rule text.
+5. **Distinct changes split into separate bullets.** BEFORE glued "imperative-mood demotion" + "Conventional Commits prefix-list demotion" into one bullet because they happened in the same commit. AFTER splits them — they're independent user-facing changes.
+6. **Marketing-tone summary rewritten as declarative.** BEFORE: "Scaffold-level defaults rebalance toward universality" (corporate voice). AFTER: "Template-side defaults also relax" (plain). The summary states what shipped; it doesn't editorialize about the design philosophy.
 
 ### Example B — small release with Added + Changed
 
