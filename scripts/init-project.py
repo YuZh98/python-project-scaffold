@@ -41,11 +41,13 @@ REPO_ROOT = Path(__file__).parent.parent.resolve()
 SCAFFOLD_ONLY_FILES: list[str] = [
     "scripts/scaffold.sh",
     "scripts/substitute.py",
+    "scripts/refresh_dev_deps.py",
     "scripts/init-project.py",  # self-delete LAST
     "template.manifest.json",
     "tests/test_scaffold.py",
     "tests/test_skill_flow.py",
     "tests/test_init_project.py",  # if present
+    "tests/test_refresh_dev_deps.py",  # if present
     "README.md",  # scaffold-repo README, NOT template
     "CHANGELOG.md",  # scaffold-repo CHANGELOG, NOT template
     ".github/workflows/ci.yml",  # scaffold-repo CI; template's takes its place
@@ -303,6 +305,37 @@ def _stage(values: dict[str, str], dry_run: bool) -> Path:
     return staging
 
 
+def _refresh_dev_deps(target_file: Path, dry_run: bool) -> None:
+    """Refresh dev-dep lower bounds to current upstream minors at bootstrap time.
+
+    Best-effort: network failures or unparseable lines leave the file unchanged
+    and emit a warning. Bootstrap continues regardless — a stale floor is a UX
+    nit, not a correctness defect, and the routine `chore` Dependabot PR would
+    eventually catch it.
+    """
+    if dry_run:
+        print(f"  [DRY-RUN] would refresh dev-dep floors in {target_file}")
+        return
+    if not target_file.is_file():
+        return
+    script = REPO_ROOT / "scripts" / "refresh_dev_deps.py"
+    if not script.is_file():
+        print("  ⚠ refresh_dev_deps.py missing; skipping floor refresh")
+        return
+    try:
+        result = subprocess.run(
+            ["python3", str(script), str(target_file)],
+            check=False,
+            timeout=60,
+        )
+        if result.returncode == 0:
+            print("  ✓ Dev-dep floors refreshed (best-effort)")
+        else:
+            print(f"  ⚠ refresh_dev_deps.py exited {result.returncode}; floors left as-is")
+    except subprocess.TimeoutExpired:
+        print("  ⚠ Dev-dep floor refresh timed out; floors left as-is")
+
+
 def _atomic_swap(staging: Path, dry_run: bool) -> None:
     """Replace scaffold-only files at root with the staged tree.
 
@@ -460,6 +493,7 @@ def _mode_in_place(args: argparse.Namespace) -> None:
     print("  [3] Confirm")
     print("  [4] Stage substituted tree to a tmpdir (live repo untouched)")
     print("  [5] Verify no stray placeholders")
+    print("  [5.5] Refresh dev-dep floors to current upstream minors (best-effort)")
     print("  [6] Atomic swap (with rollback on failure)")
     print("  [7] Reset git history" + (" (skipped)" if args.keep_history else ""))
     print("  [8] Run `make install`" + (" (skipped)" if args.no_install else ""))
@@ -479,6 +513,11 @@ def _mode_in_place(args: argparse.Namespace) -> None:
 
     # [4] [5]
     staging = _stage(values, args.dry_run)
+
+    # Refresh dev-dep floors on the staged file before the swap. The script
+    # lives at REPO_ROOT/scripts/ during this phase; after _atomic_swap it
+    # gets cleared as part of SCAFFOLD_ONLY_DIRS, so this has to happen now.
+    _refresh_dev_deps(staging / "requirements-dev.txt", args.dry_run)
 
     # [6]
     _atomic_swap(staging, args.dry_run)
@@ -529,6 +568,10 @@ def _mode_target(args: argparse.Namespace) -> None:
         target.mkdir(parents=True, exist_ok=True)
         cmd = ["bash", str(REPO_ROOT / "scripts" / "scaffold.sh"), str(target), args.values]
         result = subprocess.run(cmd)
+        if result.returncode == 0:
+            # scaffold.sh uses substitute.py and doesn't go through _mode_in_place;
+            # apply the same dev-dep floor refresh on the target's requirements-dev.txt.
+            _refresh_dev_deps(target / "requirements-dev.txt", dry_run=False)
         sys.exit(result.returncode)
     finally:
         if tmp_dir_to_clean is not None:
