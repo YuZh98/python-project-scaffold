@@ -110,26 +110,44 @@ Never let the same fact appear in two rows of the findings table.
 
 ### Step 5 — Assemble the report
 
-Use `scripts/report_template.md` verbatim as the structure. Fill each section:
+Use `scripts/report_template.md` as the structure. The template has two modes
+selected by finding count; pick the mode **after** Step 4 (dedupe), never before.
+
+**Mode selection.**
+
+- **COMPACT** — total findings ≤ 2 AND no blockers. Emit only Verdict, Executive
+  summary, Findings table. Skip everything else. The omitted sections (N/A
+  justifications, blind-spot disclosure, praise, open questions) are scaffolding
+  for substantive reports — they add noise to a one-nit audit.
+- **FULL** — total findings ≥ 3 OR any blocker. Emit every REQUIRED section,
+  per the section guidance below.
+
+This is a binary switch, not per-section judgment. Don't half-apply it.
+
+**Section content (both modes unless noted).**
 
 - **Verdict.** `Approve` (no blockers, no majors) / `Approve with nits` (no blockers,
   minor findings only) / `Request changes` (one or more blockers, or majors that the
   reader should not be expected to triage post-merge).
-- **Executive summary.** 2-3 sentences. State the verdict, the count of blockers and
-  majors, and the single most important thing the reader should fix first.
+- **Executive summary.** 1-2 sentences in COMPACT; 2-3 in FULL. State the verdict,
+  the count of blockers and majors, and the single most important thing the reader
+  should fix first. In COMPACT mode, append a one-line "N/A dims: ..." footer so
+  unevaluated context-aware dims aren't silent.
 - **Findings table.** One row per finding. Columns: ID (F1, F2, ...), Primary dim,
   Severity, File:Line, Finding, Suggested fix.
-- **Cross-cutting observations.** Multi-dim patterns, drift findings whose home is
-  unclear, anything that doesn't fit one row.
+
+**FULL-mode-only sections.**
+
+- **Cross-cutting observations** *(optional)*. Multi-dim patterns, drift findings
+  whose home is unclear, anything that doesn't fit one row.
 - **Per-dimension N/A justifications.** Every context-aware dim not evaluated. Format:
   `- <dim>: N/A because <reason> (triggers considered: ...)`.
 - **What I did NOT check and why.** Honest blind-spot disclosure. The diff couldn't
   reveal runtime behaviour; tests not executed; concurrent paths not modelled; etc.
-- **What's done well.** **One line only**, citing a specific decision. Performative
-  praise is forbidden — if there's nothing concrete to cite, omit the section entirely
-  (the report template marks it optional).
-- **Open questions.** Genuine questions you'd ask the implementer. Adaptive count;
-  zero is fine if the diff is unambiguous.
+- **What's done well** *(optional)*. **One line only**, citing a specific decision.
+  Performative praise is forbidden — if there's nothing concrete to cite, omit.
+- **Open questions** *(optional)*. Genuine questions you'd ask the implementer.
+  Adaptive count; zero is fine if the diff is unambiguous.
 
 ### Step 6 — Final cross-checks before emitting
 
