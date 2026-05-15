@@ -20,13 +20,9 @@ description: >
 
 # audit-runner
 
-Pre-PR independent audit framework. Eleven dimensions, two orthogonal mode axes,
-primary-dim rule, drift sweeps, meta-principles. The implementing agent **cannot** satisfy
-this gate alone (confirmation bias is structural); the audit must be performed with fresh
-context against the project's declared rubric.
-
-Mechanics live in `scripts/` and `dimensions/`. This file describes WHEN, WHY, the
-framework shape, the IO contract, and the recommended invocation pattern.
+Pre-PR independent audit framework: the implementing agent **cannot** satisfy this gate
+alone (confirmation bias is structural); the audit must be performed with fresh context
+against the project's declared rubric.
 
 ---
 
@@ -94,7 +90,7 @@ If the user request diverges from the examples — unrecognised dimension name, 
 something other than a Python diff, audit without a project brief on disk — **stop and
 ask for confirmation** before any audit work begins. Specifically:
 
-- **Suspiciously small diff** (<5 LOC after excluding whitespace): ask whether the user
+- **Trivial diff** (very small, mostly whitespace or comments): ask whether the user
   wants the full 11-dim framework or just a blocker-only sanity check. The framework has
   fixed overhead; trivial diffs do not justify it.
 - **Unrecognised scope dim**: list the 11 valid dim slugs (see *Dimension catalogue*
@@ -174,34 +170,6 @@ The framework is realised by reading this file and applying the procedure below.
 exact dispatch mechanism — single-pass model, parallel sub-agents, human reviewer — is
 runtime-specific; the skill describes WHAT to compose, not HOW.
 
-```
-   /audit-diff
-       │
-       ▼
- ┌─────────────────┐
- │ surface_detect  │  scans diff, emits JSON trigger list (dim → file:line)
- └────────┬────────┘
-          │
-          ▼
- ┌─────────────────────────────────────────┐
- │ Audit pass (FRESH CONTEXT)              │  load coordinator_brief.md +
- │   - load project brief                  │    GUIDELINES.md + CLAUDE.md + DESIGN.md +
- │   - walk 6 CORE dims                    │    diff + surface_detect output
- │   - for each context-aware dim with a   │
- │     trigger (or all of them at depth=all),
- │     apply its checklist with focused    │
- │     attention — runtime decides whether │
- │     this is a fresh sub-agent dispatch, │
- │     a focused single-pass pass, or a    │
- │     human-driven review                 │
- │   - dedupe via primary-dim rule         │
- │   - assemble report from template       │
- └────────┬────────────────────────────────┘
-          │
-          ▼
-   final report (markdown, shape per scripts/report_template.md)
-```
-
 **Composition is prose-driven, not executable.** The runtime decides whether to
 dispatch fresh-context sub-agents per context-aware dim or simulate the discipline by
 re-reading the brief between dims in a single pass. The framework's correctness —
@@ -231,33 +199,27 @@ ask for the trigger list or evaluate every context-aware dim conservatively.
 These are not decorative. Pre-PR audits drift toward useless "looks good" reports without
 them. The coordinator brief enforces each.
 
-- **Fresh context per pass.** No implementer history bleeds in. *Why:* confirmation bias
-  is the failure mode the audit exists to defeat.
+- **Fresh context per pass.** No implementer history bleeds in.
 - **Project brief loaded.** GUIDELINES.md + CLAUDE.md + DESIGN.md (if present) are
   read before walking dims. *Why:* the audit measures the diff against the project's
   declared rubric, not the auditor's priors.
 - **Severity tiered.** `blocker` / `major` / `minor` / `nit`. Each dim file ships a
-  severity guide. *Why:* a flat list of issues is unactionable; the reader needs to know
-  what blocks merge.
+  severity guide.
 - **File:line citations on every finding.** No "somewhere in the auth module."
 - **Suggested fix inline.** A finding without a fix path is half a finding.
-- **One finding = one fact.** No bundled rows. *Why:* bundled findings hide which part
-  the author should address; granularity is what makes the table actionable.
+- **One finding = one fact.** No bundled rows.
 - **"What I did NOT check and why" is mandatory.** Surfaces blind spots so the reader
-  can compensate. *Why:* unstated omissions look like coverage and create false
-  confidence.
-- **"What's done well" capped at one line, citing a specific decision.** No filler. *Why:*
-  performative praise dilutes the rest of the report.
+  can compensate.
+- **"What's done well" capped at one line, citing a specific decision.** No filler.
 - **Time budget per dim.** Coordinator brief sets a soft cap; the auditor stops digging
   past it and notes what was deferred.
 - **No new requirements.** Audit against the project's declared rubric, not invented
-  acceptance criteria. *Why:* mid-review goalpost-moving is the fastest way to lose the
-  implementer's trust.
+  acceptance criteria.
 - **No diff recap.** The reader has the diff. Describe deltas from expectations, not the
   diff itself.
 - **Blocking-for-merge vs preference distinguished.** Every finding states which.
 - **Context-aware dim with no surface → explicit "N/A because <reason>", never silent
-  skip.** *Why:* silence reads as coverage; explicit N/A is the only honest signal.
+  skip.**
 
 ---
 
@@ -431,19 +393,8 @@ audit-runner/
 
 ## Recommended workflow when invoked manually or by the model
 
-The runtime handbook (step-by-step procedure) lives in `scripts/coordinator_brief.md`.
-The shell pattern that produces the trigger list, then loads everything the auditor
-needs:
+Step-by-step procedure lives in `scripts/coordinator_brief.md`. Produce the trigger list with:
 
 ```bash
-# Produce the trigger list from the staged diff (or a passed --diff-file):
 git diff --staged | python3 scripts/surface_detect.py > /tmp/audit_triggers.json
-
-# Then load into the audit pass (fresh context):
-#   scripts/coordinator_brief.md, the diff, /tmp/audit_triggers.json,
-#   the project brief (GUIDELINES.md / CLAUDE.md / DESIGN.md), and mode flags.
 ```
-
-This file is the *contract* — framework, modes, output shape, meta-principles.
-`scripts/coordinator_brief.md` is the operational handbook the auditor loads at
-the start of a pass.
