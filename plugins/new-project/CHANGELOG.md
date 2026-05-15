@@ -9,9 +9,15 @@ All notable changes to the new-project plugin. Format: [Keep a Changelog](https:
 ### Changed
 - `audit-runner` report template gains COMPACT and FULL modes selected by finding count — small diffs (≤2 findings, no blockers) emit only Verdict + Executive summary + Findings table. (dc8b1af)
 - `audit-runner` docs dim CHANGELOG checklist trimmed to content-only checks, routing format concerns to `changelog-normalizer` and eliminating the apparent inconsistency when both skills run back-to-back. (73f2afa)
+- `audit-runner` dimension checklists no longer cite v1.8.0-demoted rules as binding — ADR-for-architectural, Conventional Commits prefix list, and TDD cadence are now framed as recommendations matching the demotion. (2cba225)
+- `audit-runner` SKILL.md "Recommended workflow when invoked manually" reduced to a pointer plus shell snippet, removing prose that duplicated `coordinator_brief.md` Steps 0-5. (2cba225)
+- `audit-runner` coordinator brief Step 1 and Step 3 dispatch language reframed from "spawn sub-agents" to "focused pass, sub-agent dispatch where the runtime supports it" — matches SKILL.md's runtime-agnostic stance. (2cba225)
+- `audit-runner` coordinator brief Step 6 cross-checks made mode-qualified after the COMPACT/FULL split — previously required N/A and blind-spot sections that COMPACT mode omits. (2cba225)
 - `changelog-normalizer` workflow adds a fast-path that reports clean and stops for a conformant CHANGELOG, with ambiguity asks batched into a single round-trip on the non-clean path. (806b54f)
-- `changelog-normalizer` SKILL.md no longer cites `test_cohesion.py::TestChangelogFormat` as the summary-paragraph pin — that test was demoted to a recommendation in scaffold v1.8.0. (806b54f)
-- `changelog-normalizer` SKILL.md Example A replaced with a before/after revision of scaffold v1.8.0, enumerating the recurring drift patterns the skill exists to catch. (0ddcbba)
+- `changelog-normalizer` SKILL.md Example A replaced with a before/after revision, enumerating the recurring drift patterns the skill exists to catch. (0ddcbba)
+- `changelog-normalizer` SKILL.md Examples B and C strip the source-attribution prefix; the code blocks now stand alone as canonical patterns rather than excerpts. (37fd641)
+- `new-project` SKILL.md compressed — execution-order comments no longer re-document `write_license.py` internals, meta-narration about doc structure dropped from intro and concrete-output sections. (d9a1668)
+- `release-helper` SKILL.md trimmed by ~46 lines — design narration, self-justification framing, and verbose multi-sentence bullets removed. (06e6af0)
 
 ### Deprecated
 
