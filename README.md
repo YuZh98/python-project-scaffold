@@ -69,6 +69,17 @@ The skill is **opt-in**. The scaffold works identically without it.
 
 Source: [`tooling/claude-code/`](tooling/claude-code/). The `.skill` file is attached to every [GitHub Release](https://github.com/YuZh98/python-project-scaffold/releases) automatically by CI.
 
+## Claude Code plugin
+
+This repo also ships a Claude Code plugin that wraps the scaffold (and ships sibling skills for releases, changelog normalization, and pre-PR audits).
+
+```bash
+/plugin marketplace add YuZh98/python-project-scaffold
+/plugin install new-project@python-project-scaffold
+```
+
+See `plugins/new-project/README.md` for details.
+
 ## Placeholders
 
 10 placeholders, listed in `template.manifest.json`. Required: project name, title, package name, description, author name + email, year, license id, GitHub username, Python floor. Auto-derived: ruff target (from Python floor).

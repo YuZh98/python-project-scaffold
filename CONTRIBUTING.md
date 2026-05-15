@@ -47,6 +47,20 @@ CI runs the smoke test on every push + weekly. See `.github/workflows/ci.yml`.
 - Tests must pass. Branch protection requires `smoke` CI green + 1 review before merge.
 - PR description: WHAT changed + WHY. No process narrative ("ran audit", "asked AI"); no `Co-Authored-By` trailers for AI assistants.
 
+## CHANGELOG routing (scaffold vs plugin)
+
+This monorepo has two CHANGELOGs. Route entries by what changed:
+
+| What changed | CHANGELOG to update |
+|---|---|
+| `scripts/init-project.py`, `template/`, scaffold-only files | Top-level `CHANGELOG.md` |
+| `plugins/new-project/**` (skills, scripts, manifests, docs) | `plugins/new-project/CHANGELOG.md` |
+| Cross-cutting (e.g. plugin adds flag requiring scaffold support) | Entry in BOTH CHANGELOGs, with a one-line cross-reference linking the partner entry |
+
+Cross-cutting changes additionally require a scaffold release BEFORE the plugin release that consumes the new feature, so the plugin's pinned `SCAFFOLD_VERSION` can be advanced to a tag that includes the new behavior.
+
+See `docs/adr/0001-decoupled-plugin-versioning.md` for the why.
+
 ## License
 
 By contributing, you agree your contributions are licensed under MIT (see `template/LICENSE`).

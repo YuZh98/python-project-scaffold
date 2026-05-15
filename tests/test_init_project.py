@@ -112,12 +112,17 @@ class TestInitProjectInPlace:
             assert (fork / rel).exists(), f"{rel} missing from bootstrapped fork"
 
         # Verify no stray placeholders.
+        # `plugins/` and `tooling/` are scaffold-monorepo infra (Claude Code plugin
+        # source + deprecated skill source); they're not part of a bootstrapped
+        # project and legitimately contain `<<…>>` tokens as JSON keys in
+        # bootstrap.sh. Skip during the placeholder sweep.
         for path in fork.rglob("*"):
             if not path.is_file():
                 continue
             if any(
                 p in path.parts
-                for p in (".git", ".venv", ".pytest_cache", "__pycache__")
+                for p in (".git", ".venv", ".pytest_cache", "__pycache__",
+                          "plugins", "tooling")
             ):
                 continue
             try:

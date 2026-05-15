@@ -1,0 +1,14 @@
+{
+  "name": "python-project-scaffold",
+  "owner": {
+    "name": "YuZh98",
+    "url": "https://github.com/YuZh98"
+  },
+  "plugins": [
+    {
+      "name": "new-project",
+      "source": "./plugins/new-project",
+      "description": "Python project scaffolding toolkit: scaffold new repos, run release flows, normalize CHANGELOGs, and run pre-PR audits using a scaffold-aware framework."
+    }
+  ]
+}
