@@ -11,9 +11,8 @@ description: >
 
 # new-project
 
-Thin orchestrator around the `python-project-scaffold` toolchain. Asks four questions, then
-calls the bundled scripts in order. Mechanics live in `scripts/`; this file only describes
-WHEN, WHY, and ORDER.
+Thin orchestrator around the `python-project-scaffold` toolchain. Ask four questions, then
+run the bundled scripts in order. Mechanics live in `scripts/`.
 
 ## Trigger examples
 
@@ -32,9 +31,8 @@ questions about what the scaffold ships.
 ## Drift policy
 
 If the request diverges from the trigger examples — different language, in-place
-modification, partial scaffold — **stop and ask for confirmation before running any
-script**. A wrong refusal is recoverable; a wrong scaffold litters disk and may push to the
-wrong GitHub account. Do not extrapolate.
+modification, partial scaffold — **stop and ask before running any script**. Do not
+extrapolate: a wrong scaffold writes to disk and may push to the wrong GitHub account.
 
 ## The four questions
 
@@ -52,16 +50,14 @@ license, visibility, author) and accept `y`/`Y`/`yes`/Enter to proceed.
 ## Execution order
 
 ```bash
-# 1. Refuse if cwd is inside git, gh is unauthenticated, deps are missing.
+# 1. Preflight checks (refuses if cwd is inside git, gh unauthenticated, deps missing).
 bash scripts/preflight.sh
 
-# 2. Clone scaffold at pinned tag, run init-project.py, make the
-#    scaffold's single initial commit.
+# 2. Clone scaffold at pinned tag, run init-project, make the initial commit.
 bash scripts/bootstrap.sh "$NAME" "$DESC" "$LICENSE_ID"
 
-# 3. License rewrite — only for non-MIT (scaffold ships MIT text by default).
-#    write_license.py knows Apache-2.0, BSD-3-Clause, Unlicense only.
-#    Skipped under DRY_RUN to avoid altering the local scaffold's first commit.
+# 3. Rewrite LICENSE for non-MIT and amend into the bootstrap commit.
+#    Skipped under DRY_RUN.
 if [[ -z "${DRY_RUN:-}" && "$LICENSE_ID" != "MIT" ]]; then
   TARGET="$(pwd)/$NAME"
   python3 scripts/write_license.py \
@@ -70,7 +66,7 @@ if [[ -z "${DRY_RUN:-}" && "$LICENSE_ID" != "MIT" ]]; then
   git -C "$TARGET" add LICENSE && git -C "$TARGET" commit --amend --no-edit
 fi
 
-# 4. gh repo create, push, branch protection. Skipped under DRY_RUN.
+# 4. Create gh repo, push, enable branch protection. Skipped under DRY_RUN.
 if [[ -z "${DRY_RUN:-}" ]]; then
   bash scripts/finalize.sh "$NAME" "$VISIBILITY" "$DESC"
 else
@@ -78,8 +74,7 @@ else
 fi
 ```
 
-Each script exits non-zero on failure; propagate and stop. The license-amend is the only
-commit this skill adds beyond what `bootstrap.sh` produces.
+Each script exits non-zero on failure; propagate and stop.
 
 ## IO examples
 
@@ -106,10 +101,7 @@ before doing anything. This skill is Python-only; refuse cleanly or hand off.
 
 ## Concrete output examples
 
-Golden-path output is in the IO examples above. The other two paths the user will see:
-
-**Dry-run** (`DRY_RUN=1`) — no `Finalize` line, no push, no branch-protection call;
-the bootstrap commit is real but nothing remote is touched:
+**Dry-run** (`DRY_RUN=1`) — no `Finalize` line, no push, no branch-protection call:
 
 ```
 ✓ Preflight: gh authenticated as alice, cwd outside git.
@@ -129,7 +121,7 @@ new-project: refusing to run inside an existing git repo.
 ## Do not
 
 - Add `Co-Authored-By: Claude` to any commit.
-- Re-implement validation — `init-project.py` owns it; this skill is an integration shim.
+- Re-implement validation; `init-project.py` owns it.
 - Insert commits between bootstrap and finalize (license amend is the sole exception).
 
 ## On failure
