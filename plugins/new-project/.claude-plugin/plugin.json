@@ -1,6 +1,6 @@
 {
   "name": "new-project",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Scaffold Python projects, normalize CHANGELOGs, automate releases, and run pre-PR audits.",
   "author": {
     "name": "YuZh98",
