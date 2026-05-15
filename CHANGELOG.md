@@ -7,14 +7,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · SemVer.
 ## [Unreleased]
 
 ### Added
-- Pinning test asserting the template's CI workflow and Makefile install the scaffolded package via `pip install -e .` — closes a CLAUDE.md §7 enforcement gap where ADR-0000 D1 specified editable install but neither artifact implemented it. (ba6b761)
+- Pinning test asserting the template's CI workflow and Makefile install the scaffolded package via `pip install -e .`, matching the editable-install requirement in ADR-0000 D1. (ba6b761)
 
 ### Changed
-- Plugin-smoke CI step that normalize-checks `plugins/new-project/CHANGELOG.md` loosened from `--check` (gating) to `--diff` with `continue-on-error: true` (informational) as a workaround until the normalizer script learns to preserve summary paragraphs and HTML comment blocks. (fff284e)
+- Plugin-smoke CI step that normalize-checks the plugin CHANGELOG loosened from gating to informational, pending normalizer support for summary paragraphs and HTML comment blocks. (fff284e)
 
 ### Fixed
-- Scaffolded projects now install the package via `pip install -e .` in CI and `make install`, fixing the pytest collection failure (`ModuleNotFoundError`) that broke every freshly scaffolded repo's first push — including all Dependabot PRs — under the `src/` layout. (ba6b761)
-- Dependabot config groups all pip and github-actions bumps per ecosystem and rewrites the commit prefix from `build(deps):` to `chore:`, cutting day-one PR noise on a fresh repo from ~7 individual PRs to ~2 grouped PRs that pass the project's Conventional Commits hook. (aeff17e)
+- Scaffolded projects now install the package via `pip install -e .` in CI and `make install`, fixing the `ModuleNotFoundError` that turned every freshly scaffolded repo's first push red — Dependabot PRs included. (ba6b761)
+- Dependabot bumps now group per ecosystem and ship with a `chore:` commit prefix, cutting day-one PR noise on a fresh repo from ~7 individual PRs to ~2 grouped ones that pass the Conventional Commits hook. (aeff17e)
 
 <!--
 Keep-a-Changelog conventions:
