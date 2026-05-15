@@ -102,11 +102,8 @@ The script applies these mechanically — the examples below show each in contex
   - Poor: `Step 5: replaced cd with git -C in the license-amend block.`
   - Good: `Fix license rewrite silently failing when shell cwd doesn't persist.`
 - Group related changes into one bullet at the user-impact level.
-- Each version section opens with a **one-sentence summary** of what the release is
-  about, before any `###` subheading. Recommended by Keep-a-Changelog convention
-  (this rule was previously pinned by `template/tests/test_cohesion.py` but was
-  demoted to a recommendation in v1.8.0 — see CHANGELOG and the template's own
-  `CHANGELOG.md` HTML comment).
+- Each version section opens with a one-sentence summary of what the release is about,
+  before any `###` subheading. Recommended, not required.
 - Do not overuse bolding (`**text**`) — reserve it for genuine emphasis (e.g.
   `**BREAKING**:` prefix on breaking-change entries).
 
@@ -169,9 +166,9 @@ feeling like a 2-minute ordeal.
 
 These verbatim excerpts from production CHANGELOGs anchor "what good output looks like."
 
-### Example A — before/after revision (scaffold v1.8.0)
+### Example A — before/after revision
 
-The drift patterns this skill exists to catch are easiest to see side by side. Both blocks below are real: the BEFORE shipped in `python-project-scaffold` commit `68fdfdc` (the initial v1.8.0 release commit) and was flagged by the author as drifted; the AFTER shipped in commit `ec6c0bb` (`docs: revise v1.8.0 CHANGELOG entries to match canonical style`).
+The drift patterns this skill exists to catch are easiest to see side by side.
 
 **BEFORE** — drifted:
 
@@ -216,16 +213,14 @@ Scaffold now ships as a Claude Code plugin bundling the new-project skill alongs
 
 **Drift patterns fixed (study these — they recur):**
 
-1. **Multi-sentence bullets compressed to one sentence.** Every BEFORE bullet under `### Added` and `### Changed` ran two or three sentences; AFTER bullets are one sentence each with the period right before the ref. Join clauses with `—`, `;`, or `,` instead of starting a new sentence.
-2. **Implementation paths stripped from bullets.** BEFORE leaked HOW: `.claude-plugin/marketplace.json`, `tests/test_cohesion.py`, "Conventional-commits prefix list demoted from ... to ...". AFTER keeps the user-visible artifact (`plugins/new-project/`) but drops file paths that read as code spelunking.
-3. **Meta-pointers dropped.** "See ADR 0001 for the decoupled-versioning rationale" is a reference for someone who already cares about the architecture; not changelog material. AFTER removes it.
-4. **Self-justification framing dropped.** BEFORE's "Closes a violation of CLAUDE.md §8 ('Internal-process docs are gitignored and never committed') that v0.1.0 inadvertently shipped" is process narrative. AFTER says the same thing as a clause: "closing a CLAUDE.md §8 violation that v0.1.0 inadvertently shipped" — no scare quotes around the rule text.
-5. **Distinct changes split into separate bullets.** BEFORE glued "imperative-mood demotion" + "Conventional Commits prefix-list demotion" into one bullet because they happened in the same commit. AFTER splits them — they're independent user-facing changes.
-6. **Marketing-tone summary rewritten as declarative.** BEFORE: "Scaffold-level defaults rebalance toward universality" (corporate voice). AFTER: "Template-side defaults also relax" (plain). The summary states what shipped; it doesn't editorialize about the design philosophy.
+1. **Multi-sentence bullets compressed to one sentence.** Join clauses with `—`, `;`, or `,` instead of starting a new sentence; the period belongs right before the ref.
+2. **Implementation paths stripped.** Keep user-visible artifacts; drop internal file paths that read as code spelunking.
+3. **Meta-pointers dropped.** "See ADR 0001 for the rationale" belongs in the ADR, not the changelog.
+4. **Self-justification framing dropped.** State the change as a clause, not a quoted rule citation.
+5. **Distinct changes split into separate bullets.** Don't glue independent user-facing changes together because they shipped in the same commit.
+6. **Marketing-tone summary rewritten as declarative.** State what shipped; do not editorialize.
 
 ### Example B — small release with Added + Changed
-
-From `python-project-scaffold/CHANGELOG.md` v1.7.6:
 
 ```markdown
 ## [v1.7.6] - 2026-05-13
@@ -240,8 +235,6 @@ The skill can now be installed with a single command. CI automatically builds a 
 ```
 
 ### Example C — concise refactor entry
-
-From `python-project-scaffold/CHANGELOG.md` v1.7.5:
 
 ```markdown
 ## [v1.7.5] - 2026-05-13
