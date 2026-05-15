@@ -6,6 +6,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · SemVer.
 
 ## [Unreleased]
 
+## [v1.8.1] - 2026-05-15
+
+Fixes the day-one bootstrap UX: scaffolded repos now install themselves via `pip install -e .` in CI and `make install` so pytest collection succeeds on first push, and Dependabot bumps are grouped per ecosystem with a `chore:` commit prefix to cut PR noise.
+
 ### Added
 - Pinning test asserting the template's CI workflow and Makefile install the scaffolded package via `pip install -e .`, matching the editable-install requirement in ADR-0000 D1. (ba6b761)
 
