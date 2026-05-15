@@ -1,4 +1,14 @@
-"""Smoke test: scaffold to a tmpdir, assert green pytest inside."""
+"""Smoke test: scaffold to a tmpdir, install the package, assert pytest collects green.
+
+The end-to-end gate this test exists to enforce is "a freshly scaffolded repo's own
+test suite imports and collects cleanly on first push." Earlier versions of this file
+claimed to do that in the docstring but never invoked pytest at all; the gap let the
+v1.7.9 editable-install bug ship through eight scaffold releases. `--collect-only` is
+the right granularity: it runs pytest's collection phase end-to-end (exercising imports,
+fixture wiring, and pyproject.toml metadata) without paying the cost of installing dev
+deps or running the actual test bodies. Anything that breaks import — missing editable
+install, broken package layout, mistyped test path — fails here.
+"""
 
 import json
 import os
@@ -27,7 +37,7 @@ class TestScaffoldEndToEnd:
     }
 
     def test_scaffold_produces_green_repo(self, tmp_path: Path) -> None:
-        """End-to-end: scaffold into tmpdir, run pytest, assert green."""
+        """End-to-end: scaffold into tmpdir, install editable, assert pytest collects green."""
         target = tmp_path / "smoketest-app"
         values_file = tmp_path / "values.json"
         values_file.write_text(json.dumps(self.SAMPLE_VALUES))
@@ -91,3 +101,43 @@ class TestScaffoldEndToEnd:
         assert log.returncode == 0 and log.stdout.strip(), "no initial git commit"
         assert "initial scaffold" in log.stdout.lower(), \
             f"first commit message wrong: {log.stdout!r}"
+
+        # End-to-end: install the scaffolded package and assert pytest collects clean.
+        # Uses --collect-only so we don't have to fetch dev deps (ruff, pyright, etc.)
+        # from PyPI on every CI run — the goal here is to catch import-time failures
+        # (missing editable install, broken pyproject.toml, mistyped imports in
+        # test_example.py), not to re-run the template's actual test logic.
+        #
+        # Install happens inside a throwaway venv with --system-site-packages so we
+        # inherit the runner's pytest without polluting it. The venv lives under
+        # tmp_path; pytest's tmpdir fixture cleans it up automatically. PEP 668
+        # forbids `pip install` against externally-managed Pythons (Homebrew, system
+        # macOS), so a venv is required regardless of CI environment.
+        venv_dir = tmp_path / "smoketest-venv"
+        subprocess.run(
+            [sys.executable, "-m", "venv", "--system-site-packages", str(venv_dir)],
+            check=True,
+            capture_output=True,
+        )
+        venv_python = venv_dir / "bin" / "python"
+
+        install = subprocess.run(
+            [str(venv_python), "-m", "pip", "install", "--quiet", "-e", str(target)],
+            capture_output=True,
+            text=True,
+        )
+        assert install.returncode == 0, (
+            f"pip install -e <scaffolded-project> failed:\n"
+            f"STDOUT:\n{install.stdout}\nSTDERR:\n{install.stderr}"
+        )
+
+        collect = subprocess.run(
+            [str(venv_python), "-m", "pytest", "--collect-only", "-q", "tests/"],
+            cwd=target,
+            capture_output=True,
+            text=True,
+        )
+        assert collect.returncode == 0, (
+            f"pytest --collect-only failed in scaffolded project:\n"
+            f"STDOUT:\n{collect.stdout}\nSTDERR:\n{collect.stderr}"
+        )
