@@ -24,19 +24,20 @@ Keep-a-Changelog conventions:
 
 ## [v1.8.0] - 2026-05-15
 
-The scaffold ships a Claude Code plugin (`plugins/new-project/`) bundling the new-project skill plus three sibling skills (release-helper, changelog-normalizer, audit-runner) via a self-hosted marketplace. Scaffold-level defaults rebalance toward universality: coverage threshold drops from 95% to 80%, imperative-mood and ADR-for-decisions rules demoted from required to recommended, and the cohesion test no longer enforces summary-paragraph style.
+Scaffold now ships as a Claude Code plugin bundling the new-project skill alongside release-helper, changelog-normalizer, and audit-runner. Template-side defaults also relax: coverage threshold drops from 95% to 80%, and the imperative-mood, ADR-for-decisions, and summary-paragraph rules are demoted from required to recommended.
 
 ### Added
-- Claude Code plugin (`plugins/new-project/`) packaging the scaffold's existing skill plus three sibling skills (release-helper, changelog-normalizer, audit-runner). Distributed via self-hosted marketplace at `.claude-plugin/marketplace.json`. See ADR 0001 for the decoupled-versioning rationale. (64e6db5)
+- Claude Code plugin (`plugins/new-project/`) bundling the new-project skill alongside release-helper, changelog-normalizer, and audit-runner; distributed via a self-hosted marketplace. (64e6db5)
 
 ### Changed
-- Template default coverage threshold lowered from 95% to 80%. Projects bootstrapped from the scaffold now inherit the conservative default with a comment suggesting they raise it as the project stabilizes. Existing bootstrapped projects are unaffected. (#22)
-- Template `tests/test_cohesion.py` no longer pins summary-paragraph-before-bullets in CHANGELOG versioned sections. Demoted to a recommendation in the template's `CHANGELOG.md` HTML comment. (#22)
-- Template docs no longer prescribe imperative mood in commit messages or changelog entries. Conventional-commits prefix list demoted from "must use these types" to "common examples". (#22)
-- ADR-for-hard-to-reverse-decisions wording changed from "required" to "strongly recommended" across template docs. (#22)
+- Template default coverage threshold lowered from 95% to 80% — conservative starting point with a comment suggesting projects raise it as they stabilize. (#22)
+- Summary-paragraph-before-bullets rule in template CHANGELOG sections demoted from pinning test to recommendation in the comment block. (#22)
+- Imperative-mood requirement on commit messages and changelog entries dropped as taste-pinning. (#22)
+- Conventional Commits prefix list demoted from "must use these types" to "common examples". (#22)
+- ADR-for-hard-to-reverse-decisions wording softened from "required" to "strongly recommended" across template docs. (#22)
 
 ### Security
-- Internal-process docs (`docs/superpowers/`, `docs/dev-notes/`, session logs) added to `.gitignore` for both scaffold and template. Closes a violation of CLAUDE.md §8 ("Internal-process docs are gitignored and never committed") that v0.1.0 inadvertently shipped. (#21)
+- Internal-process docs (`docs/superpowers/`, `docs/dev-notes/`, session logs) added to `.gitignore` for both scaffold and template, closing a CLAUDE.md §8 violation that v0.1.0 inadvertently shipped. (#21)
 
 ## [v1.7.9] - 2026-05-14
 
