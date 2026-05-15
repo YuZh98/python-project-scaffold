@@ -29,8 +29,7 @@ jobs:
         run: python -m pip install --upgrade pip pytest
       - name: Run plugin smoke tests
         run: pytest tests/skills/ -v
-      - name: Normalize-check plugin CHANGELOG (informational)
-        continue-on-error: true
+      - name: Normalize-check plugin CHANGELOG
         run: |
           python3 plugins/new-project/skills/changelog-normalizer/scripts/normalize_changelog.py \
-            plugins/new-project/CHANGELOG.md --diff
+            plugins/new-project/CHANGELOG.md --check
