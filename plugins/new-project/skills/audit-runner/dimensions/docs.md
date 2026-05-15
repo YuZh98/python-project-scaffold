@@ -14,14 +14,23 @@ Not applicable — always evaluated.
 
 ## Checklist
 
-1. **CHANGELOG `[Unreleased]` entry.**
-   - Does the diff add an entry?
-   - Is it in Keep-a-Changelog format (Added / Changed / Deprecated / Removed /
-     Fixed / Security)?
-   - Imperative mood?
-   - Ends with PR# or commit hash trailer?
-   - Is the entry's verb consistent with the diff's actual effect (no "Added X"
-     when the diff is a fix)?
+1. **CHANGELOG `[Unreleased]` entry — content, not format.**
+   Format checks (Keep-a-Changelog subheadings in order, refs on every entry,
+   no process narrative) belong to `changelog-normalizer` and are reliably
+   covered there; re-flagging them from this dim is what makes the audit
+   feel inconsistent with the sibling skill. Limit this checklist item to
+   what the auditor uniquely can verify against the diff:
+   - Does the diff add an entry at all? (If the diff is behaviour-changing
+     and there is no entry, that's a blocker regardless of format.)
+   - Does the entry's verb match the diff's actual effect? "Added X" when the
+     diff is a fix, "Removed Y" when Y was demoted/reworded — these
+     drift-style mismatches the auditor catches because it has the diff;
+     the normalizer does not.
+
+   Mood, KaC structure, ref-trailer presence, and process-narrative leakage
+   are explicitly **out of scope here**. If the report would have flagged
+   one of those, route the finding to a note "run changelog-normalizer
+   before re-audit" instead of opening a row in the findings table.
 
 2. **ADR if architectural.** Per global rules §6, hard-to-reverse architectural
    decisions get an ADR. Does the diff introduce one? Examples that demand an ADR:
